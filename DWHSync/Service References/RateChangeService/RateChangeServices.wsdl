@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="RateChangeServices" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsp:Policy wsu:Id="BasicHttpsBinding_IRateChangeServices_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken RequireClientCertificate="false" />
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256 />
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict />
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://localhost/RateChangeService/RateChangeServices.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://localhost/RateChangeService/RateChangeServices.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://localhost/RateChangeService/RateChangeServices.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/RateChangeOperations.Model" />
+      <xsd:import schemaLocation="http://localhost/RateChangeService/RateChangeServices.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IRateChangeServices_DoWork_InputMessage">
+    <wsdl:part name="parameters" element="tns:DoWork" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_DoWork_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DoWorkResponse" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_RateChangeSponsorshipSearch_InputMessage">
+    <wsdl:part name="parameters" element="tns:RateChangeSponsorshipSearch" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_RateChangeSponsorshipSearch_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RateChangeSponsorshipSearchResponse" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_RateChange_InputMessage">
+    <wsdl:part name="parameters" element="tns:RateChange" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_RateChange_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RateChangeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_NewSponsorshipRateChangeProcess_InputMessage">
+    <wsdl:part name="parameters" element="tns:NewSponsorshipRateChangeProcess" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_NewSponsorshipRateChangeProcess_OutputMessage">
+    <wsdl:part name="parameters" element="tns:NewSponsorshipRateChangeProcessResponse" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_AddTransferSponsorshipAttribute_InputMessage">
+    <wsdl:part name="parameters" element="tns:AddTransferSponsorshipAttribute" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_AddTransferSponsorshipAttribute_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AddTransferSponsorshipAttributeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_msExceptionProcess_InputMessage">
+    <wsdl:part name="parameters" element="tns:msExceptionProcess" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_msExceptionProcess_OutputMessage">
+    <wsdl:part name="parameters" element="tns:msExceptionProcessResponse" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_RateChangeRequestWebsite_InputMessage">
+    <wsdl:part name="parameters" element="tns:RateChangeRequestWebsite" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_RateChangeRequestWebsite_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RateChangeRequestWebsiteResponse" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_AddBoosterFlags_InputMessage">
+    <wsdl:part name="parameters" element="tns:AddBoosterFlags" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_AddBoosterFlags_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AddBoosterFlagsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_UpdateRateChangeManualFlag_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateRateChangeManualFlag" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_UpdateRateChangeManualFlag_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateRateChangeManualFlagResponse" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_addRateChangeAttribute_InputMessage">
+    <wsdl:part name="parameters" element="tns:addRateChangeAttribute" />
+  </wsdl:message>
+  <wsdl:message name="IRateChangeServices_addRateChangeAttribute_OutputMessage">
+    <wsdl:part name="parameters" element="tns:addRateChangeAttributeResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IRateChangeServices">
+    <wsdl:operation name="DoWork">
+      <wsdl:input wsaw:Action="http://tempuri.org/IRateChangeServices/DoWork" message="tns:IRateChangeServices_DoWork_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IRateChangeServices/DoWorkResponse" message="tns:IRateChangeServices_DoWork_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RateChangeSponsorshipSearch">
+      <wsdl:input wsaw:Action="http://tempuri.org/IRateChangeServices/RateChangeSponsorshipSearch" message="tns:IRateChangeServices_RateChangeSponsorshipSearch_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IRateChangeServices/RateChangeSponsorshipSearchResponse" message="tns:IRateChangeServices_RateChangeSponsorshipSearch_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RateChange">
+      <wsdl:input wsaw:Action="http://tempuri.org/IRateChangeServices/RateChange" message="tns:IRateChangeServices_RateChange_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IRateChangeServices/RateChangeResponse" message="tns:IRateChangeServices_RateChange_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="NewSponsorshipRateChangeProcess">
+      <wsdl:input wsaw:Action="http://tempuri.org/IRateChangeServices/NewSponsorshipRateChangeProcess" message="tns:IRateChangeServices_NewSponsorshipRateChangeProcess_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IRateChangeServices/NewSponsorshipRateChangeProcessResponse" message="tns:IRateChangeServices_NewSponsorshipRateChangeProcess_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AddTransferSponsorshipAttribute">
+      <wsdl:input wsaw:Action="http://tempuri.org/IRateChangeServices/AddTransferSponsorshipAttribute" message="tns:IRateChangeServices_AddTransferSponsorshipAttribute_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IRateChangeServices/AddTransferSponsorshipAttributeResponse" message="tns:IRateChangeServices_AddTransferSponsorshipAttribute_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="msExceptionProcess">
+      <wsdl:input wsaw:Action="http://tempuri.org/IRateChangeServices/msExceptionProcess" message="tns:IRateChangeServices_msExceptionProcess_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IRateChangeServices/msExceptionProcessResponse" message="tns:IRateChangeServices_msExceptionProcess_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RateChangeRequestWebsite">
+      <wsdl:input wsaw:Action="http://tempuri.org/IRateChangeServices/RateChangeRequestWebsite" message="tns:IRateChangeServices_RateChangeRequestWebsite_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IRateChangeServices/RateChangeRequestWebsiteResponse" message="tns:IRateChangeServices_RateChangeRequestWebsite_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AddBoosterFlags">
+      <wsdl:input wsaw:Action="http://tempuri.org/IRateChangeServices/AddBoosterFlags" message="tns:IRateChangeServices_AddBoosterFlags_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IRateChangeServices/AddBoosterFlagsResponse" message="tns:IRateChangeServices_AddBoosterFlags_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRateChangeManualFlag">
+      <wsdl:input wsaw:Action="http://tempuri.org/IRateChangeServices/UpdateRateChangeManualFlag" message="tns:IRateChangeServices_UpdateRateChangeManualFlag_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IRateChangeServices/UpdateRateChangeManualFlagResponse" message="tns:IRateChangeServices_UpdateRateChangeManualFlag_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="addRateChangeAttribute">
+      <wsdl:input wsaw:Action="http://tempuri.org/IRateChangeServices/addRateChangeAttribute" message="tns:IRateChangeServices_addRateChangeAttribute_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IRateChangeServices/addRateChangeAttributeResponse" message="tns:IRateChangeServices_addRateChangeAttribute_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IRateChangeServices" type="tns:IRateChangeServices">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="DoWork">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/DoWork" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RateChangeSponsorshipSearch">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/RateChangeSponsorshipSearch" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RateChange">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/RateChange" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="NewSponsorshipRateChangeProcess">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/NewSponsorshipRateChangeProcess" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddTransferSponsorshipAttribute">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/AddTransferSponsorshipAttribute" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="msExceptionProcess">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/msExceptionProcess" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RateChangeRequestWebsite">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/RateChangeRequestWebsite" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddBoosterFlags">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/AddBoosterFlags" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRateChangeManualFlag">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/UpdateRateChangeManualFlag" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addRateChangeAttribute">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/addRateChangeAttribute" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="BasicHttpsBinding_IRateChangeServices" type="tns:IRateChangeServices">
+    <wsp:PolicyReference URI="#BasicHttpsBinding_IRateChangeServices_policy" />
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="DoWork">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/DoWork" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RateChangeSponsorshipSearch">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/RateChangeSponsorshipSearch" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RateChange">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/RateChange" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="NewSponsorshipRateChangeProcess">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/NewSponsorshipRateChangeProcess" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddTransferSponsorshipAttribute">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/AddTransferSponsorshipAttribute" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="msExceptionProcess">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/msExceptionProcess" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RateChangeRequestWebsite">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/RateChangeRequestWebsite" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddBoosterFlags">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/AddBoosterFlags" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRateChangeManualFlag">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/UpdateRateChangeManualFlag" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addRateChangeAttribute">
+      <soap:operation soapAction="http://tempuri.org/IRateChangeServices/addRateChangeAttribute" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="RateChangeServices">
+    <wsdl:port name="BasicHttpBinding_IRateChangeServices" binding="tns:BasicHttpBinding_IRateChangeServices">
+      <soap:address location="http://localhost/RateChangeService/RateChangeServices.svc" />
+    </wsdl:port>
+    <wsdl:port name="BasicHttpsBinding_IRateChangeServices" binding="tns:BasicHttpsBinding_IRateChangeServices">
+      <soap:address location="https://id53256/RateChangeService/RateChangeServices.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

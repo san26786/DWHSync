@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/RateChangeService/RateChangeServices.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/RateChangeOperations.Model" />
+  <xs:element name="DoWork">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DoWorkResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RateChangeSponsorshipSearch">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="SupGrpId" type="xs:long" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RateChangeSponsorshipSearchResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/RateChangeOperations.Model" minOccurs="0" name="RateChangeSponsorshipSearchResult" nillable="true" type="q1:ArrayOfCommitments" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RateChange">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/RateChangeOperations.Model" minOccurs="0" name="arObj" nillable="true" type="q2:RateChange" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RateChangeResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/RateChangeOperations.Model" minOccurs="0" name="RateChangeResult" nillable="true" type="q3:ArrayOfRateChangeResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NewSponsorshipRateChangeProcess">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="LookupId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="SEFGUID" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NewSponsorshipRateChangeProcessResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AddTransferSponsorshipAttribute">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="lookupId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="needKey" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="SEFGUID" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AddTransferSponsorshipAttributeResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="msExceptionProcess">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/RateChangeOperations.Model" minOccurs="0" name="arObj" nillable="true" type="q4:RateChange" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="msExceptionProcessResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/RateChangeOperations.Model" minOccurs="0" name="msExceptionProcessResult" nillable="true" type="q5:ArrayOfRateChangeResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RateChangeRequestWebsite">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/RateChangeOperations.Model" minOccurs="0" name="rateChangeReq" nillable="true" type="q6:RateChangeRequestWebsite" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RateChangeRequestWebsiteResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AddBoosterFlags">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/RateChangeOperations.Model" minOccurs="0" name="arObj" nillable="true" type="q7:RateChange" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AddBoosterFlagsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/RateChangeOperations.Model" minOccurs="0" name="AddBoosterFlagsResult" nillable="true" type="q8:ArrayOfRateChangeResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateRateChangeManualFlag">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="SupporterId" type="xs:long" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateRateChangeManualFlagResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="UpdateRateChangeManualFlagResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="addRateChangeAttribute">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="attributeName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="revenueId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="RecordId" type="xs:long" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="addRateChangeAttributeResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="9f785fb3-cb18-4abe-adfc-4326d3676dd5" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost/RateChangeService/RateChangeServices.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="RateChangeServices.wsdl" MetadataType="Wsdl" ID="a31159af-a217-4bef-8507-bffa25f83672" SourceId="1" SourceUrl="http://localhost/RateChangeService/RateChangeServices.svc?wsdl" />
+    <MetadataFile FileName="RateChangeServices.xsd" MetadataType="Schema" ID="ab46df22-50b7-4df9-9b4b-a445dca8f499" SourceId="1" SourceUrl="http://localhost/RateChangeService/RateChangeServices.svc?xsd=xsd2" />
+    <MetadataFile FileName="RateChangeServices1.xsd" MetadataType="Schema" ID="7ed626f4-a1dc-475b-ab9d-1ca96332552a" SourceId="1" SourceUrl="http://localhost/RateChangeService/RateChangeServices.svc?xsd=xsd1" />
+    <MetadataFile FileName="RateChangeServices2.xsd" MetadataType="Schema" ID="a823892a-fb7f-4944-90b2-a02d6beef693" SourceId="1" SourceUrl="http://localhost/RateChangeService/RateChangeServices.svc?xsd=xsd0" />
+    <MetadataFile FileName="RateChangeServices.disco" MetadataType="Disco" ID="6f2098ab-f08e-4620-bb18-0748172427d1" SourceId="1" SourceUrl="http://localhost/RateChangeService/RateChangeServices.svc?disco" />
+    <MetadataFile FileName="RateChangeServices3.xsd" MetadataType="Schema" ID="66ec2988-33af-4f5a-bcfc-355cda75ac90" SourceId="1" SourceUrl="http://localhost/RateChangeService/RateChangeServices.svc?xsd=xsd3" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>
