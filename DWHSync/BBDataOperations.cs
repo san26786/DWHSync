@@ -1,51 +1,34 @@
-﻿using System.Linq;
-using System.Web;
-using log4net;
-using MySql.Data.MySqlClient;
-using System.Text;
-using System.Data;
-using System.Data.SqlClient;
-using System.Globalization;
-using System.Web;
-using Blackbaud.AppFx;
-using Blackbaud.AppFx.WebAPI;
-using Blackbaud.AppFx.WebAPI.ServiceProxy;
-using Blackbaud.AppFx.XmlTypes;
+﻿using Blackbaud.AppFx.WebAPI.ServiceProxy;
 using Blackbaud.AppFx.XmlTypes.DataForms;
-using RestSharp.Serialization;
+using DWHSync.Model;
+using log4net;
+using Microsoft.Web.Administration;
+using MySql.Data.MySqlClient;
+using Polly;
 using RestSharp;
 using RestSharp.Authenticators;
-using System.Net;
-using System.Data;
-using System.Threading;
-using System.Xml.Linq;
-using System.Xml;
-using DWHSync.Model;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Polly;
 using System.Configuration;
+using System.Data;
+using System.Globalization;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading;
 
 namespace DWHSync
 {
     public class BBDataOperations
     {
         protected static readonly ILog appLogger = LogManager.GetLogger(typeof(BBDataOperations));
-        private string myConnectionStringoneview = "server=62.138.4.114;uid=oneview_RN;" + "pwd=Geecon0404;database=oneview_rn_backup; convert zero datetime=True;AutoEnlist=false";
-        private string myConnectionStringDWH = "server=172.23.161.18;uid=dwh_user;" + "pwd=Geecon0404;database=DWH; convert zero datetime=True;AutoEnlist=false;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=100;Pooling=true;";
-        private string myConnectionString = "server=172.23.161.18;uid=dwh_landing_user;" + "pwd=Comp@ss!on@1952;database=dwh_landing; convert zero datetime=True;AutoEnlist=false;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=100;Pooling=true;";
-        private string mycukdevco_tcpt4ConnectionString = "server=172.23.161.30;uid=cuk_tcpt4;" + "pwd=Geecon0404;database=cuk_tcpt4_log; convert zero datetime=True;AutoEnlist=false";
+        private string myConnectionStringDWH = "";
+        private string myConnectionString = "";
         private static DBModel dbObj;
         private static long rowCounter;
         private Blackbaud.AppFx.WebAPI.ServiceProxy.AppFxWebService _service;
         private string BbDatabase = string.Empty;
         private string ApplicationName = System.Reflection.Assembly.GetCallingAssembly().FullName;
-
-        private string URI = "https://s01p2bisweb003.blackbaud.net/64156_06c7d203-38a5-43a4-9fec-9c744931be66/appfxwebservice.asmx";
-
-        private string UID = "esbuser64156";
-        private string PWD = "Esbuswe@123";
 
         Policy retryPolicy = Policy
                       .Handle<Exception>(ex => ex.Message.Contains("The request failed with HTTP status 502: Bad Gateway"))
@@ -57,13 +40,31 @@ namespace DWHSync
 
         public BBDataOperations()
         {
+            Dictionary<string, string> keyValue = new Dictionary<string, string>();
+
+            using (ServerManager serverManager = new ServerManager())
+            {
+                Microsoft.Web.Administration.Configuration config = serverManager.GetWebConfiguration("Default Web Site", "/");
+                Microsoft.Web.Administration.ConfigurationSection appSettingsSection = config.GetSection("appSettings");
+
+                foreach (Microsoft.Web.Administration.ConfigurationElement element in appSettingsSection.GetCollection())
+                {
+                    string key = element["key"].ToString();
+                    string value = element["value"].ToString();
+                    keyValue.Add(key, value);
+                }
+            }
+
+            myConnectionString = keyValue["DWHUserConnectionString"];
+            myConnectionStringDWH = keyValue["DWHLandingConnectionString"];
+
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             // Logging
             log4net.Config.XmlConfigurator.Configure();
             _service = new AppFxWebService();
-            _service.Url = ConfigurationManager.AppSettings["BB_URI"];
-            _service.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["BB_UID"], ConfigurationManager.AppSettings["BB_PWD"], "");
+            _service.Url = keyValue["BB_URI"];
+            _service.Credentials = new System.Net.NetworkCredential(keyValue["BB_UID"], keyValue["BB_PWD"], "");
 
             var req = new Blackbaud.AppFx.WebAPI.ServiceProxy.GetAvailableREDatabasesRequest();
             req.ClientAppInfo = GetRequestHeader();
@@ -159,7 +160,7 @@ namespace DWHSync
             });
         }
 
-     
+
         public void SycnConstituentHouseholdBelongedTo()
         {
             string Table_Name = " Constituent Household Belonged To ";
@@ -376,7 +377,7 @@ namespace DWHSync
             InsertTableCount(Table_Name, Total);
         }
 
-      
+
 
         #region Sync Blackbaud Reports
         public int SycnProspectResearchReport(string System)
@@ -1205,7 +1206,7 @@ namespace DWHSync
             insertLastUpdatedInDbDWH("Steps Reporting", DWH_Total);
         }
 
-       
+
 
     }
 }
