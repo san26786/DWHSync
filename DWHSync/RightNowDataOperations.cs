@@ -31,15 +31,9 @@ namespace DWHSync
         public RightNowSyncPortClient rightNowSyncPortClient = new RightNowSyncPortClient();
         // private string myConnectionString = "server=62.138.4.114;uid=oneview_RN;" + "pwd=Geecon0404;database=oneview_rn_backup; convert zero datetime=True;AutoEnlist=false";
         APIAccessRequestHeader api = new APIAccessRequestHeader();
-        private string myConnectionString = "server=172.23.161.18;uid=dwh_user;" + "pwd=Geecon0404;database=DWH; convert zero datetime=True;AutoEnlist=false;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=1000;Pooling=true;";
-        private string myConnectionStringComuk = "server=185.162.227.108;uid=comuk_websit;" + "pwd=Website2020@;database=comuk_website; convert zero datetime=True;AutoEnlist=false";//wp_sponsorship_details//wp_donation_details
-        private string myConnectionStringcuk = "server=62.138.4.114;uid=cuk_tcpt4;" + "pwd=Geecon0404;database=cuk_tcpt4_log; convert zero datetime=True;AutoEnlist=false";//wp_tcpt_online_s2b
-        private string myAppConnectionString = "server=172.23.161.30;uid=oneview_comapp;" + "pwd=Geecon0404;database=oneview_comukapp_v2; convert zero datetime=True;AutoEnlist=false";
-        private string MyuatConnectionString = "server=212.48.85.22;uid=myuat_Tcpt_Audit;" + "pwd=Geecon0404;database=myuat_Tcpt_Audit_Log; convert zero datetime=True;";
+        private string myConnectionString = "";
 
-        private string myCUKDEVConnectionString = "server=109.108.159.77;uid=cukdevco_user;" + "pwd=Geecon0404;database=cukdevco_tcpt4_log; convert zero datetime=True;AutoEnlist=false;Connect Timeout=500;";
-
-        private string myDWH_LandingConnectionString = "server=172.23.161.18;uid=dwh_landing_user;" + "pwd=Comp@ss!on@1952;database=dwh_landing; convert zero datetime=True;AutoEnlist=false;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=100;Pooling=true;";
+        private string myDWH_LandingConnectionString = "";
 
         private Blackbaud.AppFx.WebAPI.ServiceProxy.AppFxWebService _service;
         private string BbDatabase = string.Empty;
@@ -183,7 +177,6 @@ namespace DWHSync
         };
         #endregion
 
-        // Constructor
         public RightNowDataOperations()
         {
             Dictionary<string, string> keyValue = new Dictionary<string, string>();
@@ -200,6 +193,9 @@ namespace DWHSync
                     keyValue.Add(key, value);
                 }
             }
+
+            myConnectionString = keyValue["DWHUserConnectionString"];
+            myDWH_LandingConnectionString = keyValue["DWHLandingConnectionString"];
 
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -229,8 +225,8 @@ namespace DWHSync
 
             // Authenticate with RightNow Server using RightNow user credentials
             rightNowSyncPortClient = new RightNowSyncPortClient();
-            rightNowSyncPortClient.ClientCredentials.UserName.UserName = "GC_2";
-            rightNowSyncPortClient.ClientCredentials.UserName.Password = "G33con0404";
+            rightNowSyncPortClient.ClientCredentials.UserName.UserName = keyValue["BB_UID"];
+            rightNowSyncPortClient.ClientCredentials.UserName.Password = keyValue["BB_UID"];
             /*_timer = new System.Timers.Timer();
             _scheduleTime = DateTime.Today.AddDays(1).AddDays(-1).AddHours(18); // Schedule to run once a day at 6:00 p.m.
             //_scheduleTime = DateTime.Today.AddDays(1).AddDays(-1).AddHours(7).AddMinutes(5); // Schedule to run once a day at 1:00 a.m.
@@ -246,10 +242,6 @@ namespace DWHSync
             header.REDatabaseToUse = BbDatabase;
             return header;
         }
-
-        // Methods
-
-        // Sync Commitments
 
         #region Sync DWH
         public int SyncCommitment(string fromTime)
@@ -758,27 +750,22 @@ namespace DWHSync
             {
                 ClientInfoHeader clientInfoHeader = new ClientInfoHeader();
                 APIAccessResponseHeaderType head = new APIAccessResponseHeaderType();
-                clientInfoHeader.AppID = "Get SupporterEnquiries";
+                clientInfoHeader.AppID = "Get SupporterEnquiries data for DWH Sync";
 
                 do
                 {
                     count = 0;
-
-                    string Query = "SELECT Incident.ID,Incident.Queue,Incident.Mailbox,Incident.Category,Incident.Disposition,Incident.CustomFields.c.ContactAttemptsMade,Incident.CustomFields.c.FeedbackRating,Incident.CreatedTime,Incident.UpdatedTime,Incident.ClosedTime,Incident.CreatedByAccount,Incident.CustomFields.c.CampaignFormType,Incident.CustomFields.c.due_date as ResolutionDueDate,Incident.Product as MinistryAspect,Incident.CustomFields.c.sourcechannel,Incident.CustomFields.c.source,Incident.source.level1 as source_lvl1,Incident.source.id as source_lvl2,Incident.CustomFields.c.whitemail as whitemail,Incident.PrimaryContact.contact as PrimaryContact,Incident.assignedTo.account as AssignedTo,Incident.statusWithType.status.id as Status_id,Incident.statusWithType.status.lookupName as Status,Incident.CustomFields.c.InternalSubject,Incident.lookupname as Reference,Incident.customFields.c.sponsorchildref as ChildReference,Incident.customFields.c.rcworkitem as RingCentralWorkItem,Incident.customFields.c.rcworkitemskill as RingCentralWorkItemSkill,Incident.customFields.c.rcworkitemstatus as RingCentralWorkItemStatus,Incident.customFields.c.rcworkitemid as RingCentralWorkItemID,Incident.customFields.c.rcoriginalenquiryref as RingCentralOriginalEnquiryReference,Incident.customFields.c.rcenquiryiteration as RingCentralEnquiryIteration,Incident.statusWithType.statusType.id as StatusType,Incident.customFields.c.resolvestarted as ResolveStarted,Incident.customFields.c.resolveended as ResolveEnded,Incident.customFields.c.setupstarted as SetupStarted,Incident.customFields.c.setupended as SetupEnded,Incident.customFields.c.supportertype as SupporterType,Incident.customFields.c.needid as NeedID FROM Incident";
+                    string Query = "SELECT Incident.ID,Incident.Queue,Incident.Mailbox,Incident.Category,Incident.Disposition,Incident.CustomFields.c.ContactAttemptsMade,Incident.CustomFields.c.FeedbackRating,Incident.CreatedTime,Incident.UpdatedTime,Incident.ClosedTime,Incident.CreatedByAccount,Incident.CustomFields.c.CampaignFormType,Incident.CustomFields.c.due_date as ResolutionDueDate,Incident.Product as MinistryAspect,Incident.CustomFields.c.sourcechannel,Incident.CustomFields.c.source,Incident.source.level1 as source_lvl1,Incident.source.id as source_lvl2,Incident.CustomFields.c.whitemail as whitemail,Incident.PrimaryContact.contact as PrimaryContact,Incident.assignedTo.account as AssignedTo,Incident.statusWithType.status.id as Status_id,Incident.statusWithType.status.lookupName as Status,Incident.CustomFields.c.InternalSubject,Incident.lookupname as Reference,Incident.customFields.c.sponsorchildref as ChildReference,Incident.customFields.c.rcworkitem as RingCentralWorkItem,Incident.customFields.c.rcworkitemskill as RingCentralWorkItemSkill,Incident.customFields.c.rcworkitemstatus as RingCentralWorkItemStatus,Incident.customFields.c.rcworkitemid as RingCentralWorkItemID,Incident.customFields.c.rcoriginalenquiryref as RingCentralOriginalEnquiryReference,Incident.customFields.c.rcenquiryiteration as RingCentralEnquiryIteration,Incident.statusWithType.statusType.id as StatusType,Incident.customFields.c.resolvestarted as ResolveStarted,Incident.customFields.c.resolveended as ResolveEnded,Incident.customFields.c.setupstarted as SetupStarted,Incident.customFields.c.setupended as SetupEnded,Incident.customFields.c.supportertype as SupporterType,Incident.customFields.c.needid as NeedID, Incident.CustomFields.c.lettersalutation, Incident.CustomFields.c.sponsorshipplus, Incident.CustomFields.c.giftaidstatus.lookupName as giftaidstatus FROM Incident";
 
                     string updatedRecordsFilter = " WHERE Incident.CreatedTime >= '" + fromTime + "' OR Incident.UpdatedTime>= '" + fromTime + "'";
                     string orderBy = " ORDER BY Incident.ID ASC";
                     string limit = " LIMIT " + startLimit + ", " + pageSize;
-
                     Query += updatedRecordsFilter + orderBy + limit;
                     //Query += orderBy + limit;
-
                     byte[] byteArray;
-
                     CSVTableSet results = null;
                     head = rightNowSyncPortClient.QueryCSV(clientInfoHeader, api, Query, pageSize, "^", false, true, out results, out byteArray);
                     count = results.CSVTables[0].Rows.Length;
-
                     if (count > 0)
                     {
                         appLogger.Info("Updating " + count + " SupporterEnquiries records...");
@@ -823,8 +810,6 @@ namespace DWHSync
                                 string Status_id = string.IsNullOrEmpty(values[21]) ? "null" : values[21];
                                 string Status = string.IsNullOrEmpty(values[22]) ? "null" : values[22];
                                 string InternalSubject = string.IsNullOrEmpty(values[23]) ? "null" : values[23].Replace(",", "");
-
-
                                 string Reference = string.IsNullOrEmpty(values[24]) ? "null" : values[24];
                                 string ChildReference = string.IsNullOrEmpty(values[25]) ? "null" : values[25];
                                 string RingCentralWorkItem = string.IsNullOrEmpty(values[26]) ? "null" : values[26];
@@ -840,6 +825,9 @@ namespace DWHSync
                                 string SetupEnded = "";
                                 string SupporterType = string.IsNullOrEmpty(values[37]) ? "null" : values[37];
                                 string NeedID = string.IsNullOrEmpty(values[38]) ? "null" : values[38];
+                                string LetterSalutation = string.IsNullOrEmpty(values[39]) ? "null" : values[39];
+                                string SponsorShipPlus = string.IsNullOrEmpty(values[40]) ? "null" : values[40];
+                                string GiftAidStatus = string.IsNullOrEmpty(values[41]) ? "null" : values[41];
 
                                 if (!string.IsNullOrEmpty(values[33]))
                                 {
@@ -880,8 +868,6 @@ namespace DWHSync
                                 {
                                     SetupEnded = "null";
                                 }
-
-
                                 if (!string.IsNullOrEmpty(values[7]))
                                 {
                                     DateTime dt = DateTime.ParseExact(values[7], "yyyy-MM-ddTHH:mm:ss.fffZ", System.Globalization.CultureInfo.InvariantCulture);
@@ -910,9 +896,9 @@ namespace DWHSync
                                 {
                                     ClosedTime = "null";
                                 }
-
-                                string singleRow = IncidentID + ",'" + Queue + "','" + Mailbox + "','" + Category + "','" + Disposition + "','" + ContactAttemptsMade + "','" + FeedbackRating + "','" + CreatedTime + "','" + UpdatedTime + "','" + ClosedTime + "','" + CreatedByAccount + "','" + CampaignFormType + "','" + ResolutionDueDate + "','" + MinistryAspect + "','" + sourcechannel + "','" + source + "','" + source_lvl1 + "','" + source_lvl2 + "','" + whitemail + "','" + PrimaryContact + "','" + AssignedTo + "','" + Status_id + "','" + Status + "','" + InternalSubject.Replace("'", "") + "','" + Reference + "','" + ChildReference + "'," + RingCentralWorkItem + "," + RingCentralWorkItemSkill + "," + RingCentralWorkItemStatus + ",'" + RingCentralWorkItemID + "','" + RingCentralOriginalEnquiryReference + "'," + RingCentralEnquiryIteration + "," + StatusType + ",'" + ResolveStarted + "','" + ResolveEnded + "','" + SetupStarted + "','" + SetupEnded + "'," + SupporterType + "," + NeedID;
+                                string singleRow = IncidentID + "," + Queue + "," + Mailbox + "," + Category + "," + Disposition + "," + ContactAttemptsMade + "," + FeedbackRating + ",'" + CreatedTime + "','" + UpdatedTime + "','" + ClosedTime + "'," + CreatedByAccount + "," + CampaignFormType + ",'" + ResolutionDueDate + "'," + MinistryAspect + "," + sourcechannel + ",'" + source + "'," + source_lvl1 + "," + source_lvl2 + "," + whitemail + "," + PrimaryContact + "," + AssignedTo + "," + Status_id + ",'" + Status + "','" + InternalSubject.Replace("'", "") + "','" + Reference + "','" + ChildReference + "'," + RingCentralWorkItem + "," + RingCentralWorkItemSkill + "," + RingCentralWorkItemStatus + ",'" + RingCentralWorkItemID + "','" + RingCentralOriginalEnquiryReference + "'," + RingCentralEnquiryIteration + "," + StatusType + ",'" + ResolveStarted + "','" + ResolveEnded + "','" + SetupStarted + "','" + SetupEnded + "'," + SupporterType + "," + NeedID + "," + LetterSalutation + ",'" + SponsorShipPlus + "','" + GiftAidStatus + "'";
                                 Rows.Add(string.Format("({0})", singleRow));
+
                             }
                             updatingStartPoint = getDateTimeWhichProcessUpdatingInDB(Rows[0]);
                             updatingEndPoint = getDateTimeWhichProcessUpdatingInDB(Rows[count - 1]);
@@ -953,7 +939,7 @@ namespace DWHSync
             catch (Exception e)
             {
                 appLogger.Error("Error in SupporterEnquiries - FromTime : " + fromTime + ", StartLimit : " + startLimit);
-
+                SendSMS("Error in SupporterEnquiries for dwh_landing");
                 appLogger.Error(e.Message);
                 appLogger.Error(e.InnerException);
                 appLogger.Error(e.StackTrace);
@@ -1448,20 +1434,20 @@ namespace DWHSync
             {
                 ClientInfoHeader clientInfoHeader = new ClientInfoHeader();
                 APIAccessResponseHeaderType head = new APIAccessResponseHeaderType();
-                clientInfoHeader.AppID = "Get Events ";
+                clientInfoHeader.AppID = "Get Events  data for DWH Sync";
 
                 do
                 {
                     count = 0;
 
-                    string Query = "select opportunity.ID, opportunity.Name, opportunity.Organization,opportunity.CustomFields.c.eventstatus, opportunity.CustomFields.c.eventstart, opportunity.CustomFields.c.eventend,opportunity.AssignedToAccount,opportunity.CustomFields.c.budgetholder,opportunity.Territory,opportunity.UpdatedTime,opportunity.CreatedTime,opportunity.CustomFields.standard.Region,opportunity.Customfields.SCBS_COMMON.Manager.name as Manager,opportunity.customFields.Standard.ExpectedSponsorships,opportunity.customFields.Standard.ReportedSponsorships ,opportunity.customFields.c.agreement_expectedaudiencesize,opportunity.customFields.c.feedback_audiencesize,opportunity.customFields.c.feedback_whatworked,opportunity.customFields.c.feedback_whatdidnotwork,opportunity.customFields.Standard.TourEvent,opportunity.customFields.Standard.ProfileExpiry,opportunity.customFields.Standard.TotalSponsorships,opportunity.customFields.Standard.NumProfilesRequired,opportunity.customFields.Standard.ChildrenOnHoldFrom,opportunity.customFields.Standard.OrderOn,opportunity.customFields.Standard.WebSMSCampaignStart,opportunity.customFields.Standard.WebSMSCampaignEnd,opportunity.customFields.Standard.WebSMSProfilesRequired,opportunity.PrimaryContact.contact as Supporter,opportunity.StageWithStrategy.stage as StageWithStrategy from opportunity";
+                    string Query = "select opportunity.ID,opportunity.Name,opportunity.Organization,opportunity.CustomFields.c.eventstatus,opportunity.CustomFields.c.eventstart,opportunity.CustomFields.c.eventend,opportunity.AssignedToAccount,opportunity.CustomFields.c.budgetholder,opportunity.Territory,opportunity.UpdatedTime,opportunity.CreatedTime,opportunity.CustomFields.standard.Region,opportunity.Customfields.SCBS_COMMON.Manager.name as Manager,opportunity.StageWithStrategy.stage as StageWithStrategy,opportunity.PrimaryContact.contact as Supporter,opportunity.customFields.Standard.ExpectedSponsorships,opportunity.customFields.Standard.ReportedSponsorships ,opportunity.customFields.c.agreement_expectedaudiencesize,opportunity.customFields.c.feedback_audiencesize,opportunity.customFields.c.feedback_whatworked,opportunity.customFields.c.feedback_whatdidnotwork,opportunity.customFields.Standard.TourEvent,opportunity.customFields.Standard.ProfileExpiry,opportunity.customFields.Standard.TotalSponsorships,opportunity.customFields.Standard.NumProfilesRequired,opportunity.customFields.Standard.ChildrenOnHoldFrom,opportunity.customFields.Standard.OrderOn,opportunity.customFields.Standard.WebSMSCampaignStart,opportunity.customFields.Standard.WebSMSCampaignEnd,opportunity.customFields.Standard.WebSMSProfilesRequired,opportunity.customFields.Standard.ChildRequirements,opportunity.customFields.Standard.EventManager,opportunity.customFields.Standard.ProjectManager,opportunity.customFields.Standard.RelationshipManager,opportunity.customFields.Standard.EventType,opportunity.customFields.Standard.NumBangtailsRequired,opportunity.customFields.Standard.CompassionExperience,opportunity.customFields.Standard.VolunteersRequired,opportunity.customFields.Standard.VolunteersTotalRequested AS VolunteersRequested,opportunity.customFields.Standard.VolunteersConfirmed, opportunity.customFields.Standard.EventAmbassador, opportunity.customFields.c.feedback_nomonies as NoMoniesFeedback, opportunity.customFields.c.feedback_monies as MoniesFeedback, opportunity.customFields.c.regionaleventtype, opportunity.customFields.c.pods,  opportunity.customFields.c.eventcategory, opportunity.customFields.Standard.GraduateSpeakerRequired, opportunity.customFields.Standard.GraduateSpeakerRequested, opportunity.customFields.Standard.GraduateSpeakerConfirmed, opportunity.customFields.c.presentationrequired as PresentationPosterRequired, opportunity.customFields.c.presentationsupplied, opportunity.customFields.c.postersupplied, opportunity.customFields.c.eventsource from opportunity";
 
                     string updatedRecordsFilter = " where opportunity.CreatedTime >= '" + fromTime + "' OR opportunity.UpdatedTime >= '" + fromTime + "'";
                     string orderBy = " ORDER BY opportunity.ID ASC";
                     string limit = " LIMIT " + startLimit + ", " + pageSize;
 
-                    Query += updatedRecordsFilter + orderBy + limit;
-                    //Query += orderBy + limit;
+                    //Query += updatedRecordsFilter + orderBy + limit;
+                    Query += orderBy + limit;
 
                     byte[] byteArray;
 
@@ -1512,8 +1498,105 @@ namespace DWHSync
                             List<string> Rows = new List<string>();
                             foreach (string row in results.CSVTables[0].Rows)
                             {
-                                List<string> values = row.Split('^').ToList();
-                                Rows.Add(string.Format("('{0}')", string.Join("','", values.Select(i => i.Replace("'", "''")))));
+                                string FilterRow = row.Replace("'", "");
+                                List<string> values = FilterRow.Split('^').ToList();
+                                string EventID = string.IsNullOrEmpty(values[0]) ? "null" : values[0];
+                                string Name = string.IsNullOrEmpty(values[1]) ? "null" : values[1];
+                                string Organization = string.IsNullOrEmpty(values[2]) ? "null" : values[2];
+                                string Status = string.IsNullOrEmpty(values[3]) ? "null" : values[3];
+                                string EventStart = "";//4
+                                string EventEnd = "";//5
+                                string Assigned = string.IsNullOrEmpty(values[6]) ? "null" : values[6];
+                                string BudgetHolder = string.IsNullOrEmpty(values[7]) ? "null" : values[7];
+                                string Territory = string.IsNullOrEmpty(values[8]) ? "null" : values[8];
+                                string UpdatedTime = "";//9
+                                string CreatedTime = "";//10
+                                string Region = string.IsNullOrEmpty(values[11]) ? "null" : values[11];
+                                string Manager = string.IsNullOrEmpty(values[12]) ? "null" : values[12];
+                                string StageWithStrategy = string.IsNullOrEmpty(values[13]) ? "null" : values[13];
+                                string Supporter = string.IsNullOrEmpty(values[14]) ? "null" : values[14];
+                                string ExpectedSponsorships = string.IsNullOrEmpty(values[15]) ? "null" : values[15];
+                                string ReportedSponsorships = string.IsNullOrEmpty(values[16]) ? "null" : values[16];
+                                string agreement_expectedaudiencesize = string.IsNullOrEmpty(values[17]) ? "null" : values[17];
+                                string feedback_audiencesize = string.IsNullOrEmpty(values[18]) ? "null" : values[18];
+                                string feedback_whatworked = string.IsNullOrEmpty(values[19]) ? "null" : values[19];
+                                string feedback_whatdidnotwork = string.IsNullOrEmpty(values[20]) ? "null" : values[20];
+                                string TourEvent = string.IsNullOrEmpty(values[21]) ? "null" : values[21];
+                                string ProfileExpiry = !string.IsNullOrEmpty(values[22]) ? GetDateFromDateTime(values[22]) : "null";
+                                string TotalSponsorships = string.IsNullOrEmpty(values[23]) ? "null" : values[23];
+                                string NumProfilesRequired = string.IsNullOrEmpty(values[24]) ? "null" : values[24];
+                                string ChildrenOnHoldFrom = !string.IsNullOrEmpty(values[25]) ? GetDateFromDateTime(values[25]) : "null";
+                                string OrderOn = !string.IsNullOrEmpty(values[26]) ? GetDateFromDateTime(values[26]) : "null";
+                                string WebSMSCampaignStart = !string.IsNullOrEmpty(values[27]) ? GetDateFromDateTime(values[27]) : "null";
+                                string WebSMSCampaignEnd = !string.IsNullOrEmpty(values[28]) ? GetDateFromDateTime(values[28]) : "null";
+                                string WebSMSProfilesRequired = string.IsNullOrEmpty(values[29]) ? "null" : values[29];
+                                string ChildRequirements = string.IsNullOrEmpty(values[30]) ? "null" : values[30];
+                                string EventManager = string.IsNullOrEmpty(values[31]) ? "null" : values[31];
+                                string ProjectManager = string.IsNullOrEmpty(values[32]) ? "null" : values[32];
+                                string RelationshipManager = string.IsNullOrEmpty(values[33]) ? "null" : values[33];
+                                string EventType = string.IsNullOrEmpty(values[34]) ? "null" : values[34];
+                                string NumBangtailsRequired = string.IsNullOrEmpty(values[35]) ? "null" : values[35];
+                                string CompassionExperience = string.IsNullOrEmpty(values[36]) ? "null" : values[36];
+                                string VolunteersRequired = string.IsNullOrEmpty(values[37]) ? "null" : values[37];
+                                string VolunteersRequested = string.IsNullOrEmpty(values[38]) ? "null" : values[38];
+                                string VolunteersConfirmed = string.IsNullOrEmpty(values[39]) ? "null" : values[39];
+                                string EventAmbassador = string.IsNullOrEmpty(values[40]) ? "null" : values[40];
+                                string FeedbackNomonies = string.IsNullOrEmpty(values[41]) ? "null" : values[41];
+                                string FeedbackMonies = string.IsNullOrEmpty(values[42]) ? "null" : values[42];
+                                string RegionalEventType = string.IsNullOrEmpty(values[43]) ? "null" : values[43];
+                                string Pods = string.IsNullOrEmpty(values[44]) ? "null" : values[44];
+                                string EventCategory = string.IsNullOrEmpty(values[45]) ? "null" : values[45];
+                                string GraduateSpeakerRequired = string.IsNullOrEmpty(values[46]) ? "null" : values[46];
+                                string GraduateSpeakerRequested = string.IsNullOrEmpty(values[47]) ? "null" : values[47];
+                                string GraduateSpeakerConfirmed = string.IsNullOrEmpty(values[48]) ? "null" : values[48];
+                                string PresentationRequired = string.IsNullOrEmpty(values[49]) ? "null" : values[49];
+                                string PresentationSupplied = string.IsNullOrEmpty(values[50]) ? "null" : values[50];
+                                string PosterSupplied = string.IsNullOrEmpty(values[51]) ? "null" : values[51];
+                                string EventSource = string.IsNullOrEmpty(values[52]) ? "null" : values[52];
+
+
+
+                                if (!string.IsNullOrEmpty(values[10]))
+                                {
+                                    DateTime dt = DateTime.ParseExact(values[10], "yyyy-MM-ddTHH:mm:ss.fffZ", System.Globalization.CultureInfo.InvariantCulture);
+                                    CreatedTime = dt.ToString("yyyy-MM-dd HH:mm:ss");
+                                }
+                                else
+                                {
+                                    CreatedTime = "null";
+                                }
+
+                                if (!string.IsNullOrEmpty(values[9]))
+                                {
+                                    DateTime dt = DateTime.ParseExact(values[9], "yyyy-MM-ddTHH:mm:ss.fffZ", System.Globalization.CultureInfo.InvariantCulture);
+                                    UpdatedTime = dt.ToString("yyyy-MM-dd HH:mm:ss");
+                                }
+                                else
+                                {
+                                    UpdatedTime = "null";
+                                }
+                                if (!string.IsNullOrEmpty(values[4]))
+                                {
+                                    DateTime dt = DateTime.ParseExact(values[4], "yyyy-MM-ddTHH:mm:ss.fffZ", System.Globalization.CultureInfo.InvariantCulture);
+                                    EventStart = dt.ToString("yyyy-MM-dd HH:mm:ss");
+                                }
+                                else
+                                {
+                                    EventStart = "null";
+                                }
+                                if (!string.IsNullOrEmpty(values[5]))
+                                {
+                                    DateTime dt = DateTime.ParseExact(values[5], "yyyy-MM-ddTHH:mm:ss.fffZ", System.Globalization.CultureInfo.InvariantCulture);
+                                    EventEnd = dt.ToString("yyyy-MM-dd HH:mm:ss");
+                                }
+                                else
+                                {
+                                    EventEnd = "null";
+                                }
+
+                                string singleRow = EventID + ",'" + Name + "'," + Organization + "," + Status + ",'" + EventStart + "','" + EventEnd + "'," + Assigned + "," + BudgetHolder + "," + Territory + ",'" + UpdatedTime + "','" + CreatedTime + "'," + Region + ",'" + Manager + "'," + StageWithStrategy + "," + Supporter + "," + ExpectedSponsorships + "," + ReportedSponsorships + "," + agreement_expectedaudiencesize + "," + feedback_audiencesize + ",'" + feedback_whatworked + "','" + feedback_whatdidnotwork + "'," + TourEvent + ",'" + ProfileExpiry + "'," + TotalSponsorships + "," + NumProfilesRequired + ",'" + ChildrenOnHoldFrom + "','" + OrderOn + "','" + WebSMSCampaignStart + "','" + WebSMSCampaignEnd + "'," + WebSMSProfilesRequired + ",'" + ChildRequirements + "'," + EventManager + "," + ProjectManager + "," + RelationshipManager + "," + EventType + "," + NumBangtailsRequired + "," + CompassionExperience + "," + VolunteersRequired + "," + VolunteersRequested + "," + VolunteersConfirmed + "," + EventAmbassador + "," + FeedbackNomonies + "," + FeedbackMonies + "," + RegionalEventType + "," + Pods + "," + EventCategory + "," + GraduateSpeakerRequired + "," + GraduateSpeakerRequested + "," + GraduateSpeakerConfirmed + "," + PresentationRequired + "," + PresentationSupplied + "," + PosterSupplied + "," + EventSource + "";
+                                Rows.Add(string.Format("({0})", singleRow));
+
                             }
                             sCommand.Append(string.Join(",", Rows));
 
@@ -1524,6 +1607,7 @@ namespace DWHSync
                                 UpdatePart.Add(string.Format("{0} = VALUES({0})", Column));
                             }
                             sCommand.Append(string.Join(",", UpdatePart));
+                            sCommand.Replace("'null'", "null");
                             sCommand.Append(";");
 
                             mConnection.Open();
@@ -1549,7 +1633,7 @@ namespace DWHSync
             catch (Exception e)
             {
                 appLogger.Error("Error in Events - FromTime : " + fromTime + ", StartLimit : " + startLimit);
-
+                SendSMS("Error in Events for dwh_landing");
                 appLogger.Error(e.Message);
                 appLogger.Error(e.InnerException);
                 appLogger.Error(e.StackTrace);
@@ -1568,20 +1652,24 @@ namespace DWHSync
             {
                 ClientInfoHeader clientInfoHeader = new ClientInfoHeader();
                 APIAccessResponseHeaderType head = new APIAccessResponseHeaderType();
-                clientInfoHeader.AppID = "Get Organisations ";
+                clientInfoHeader.AppID = "Get Organisations  data for DWH Sync";
 
                 do
                 {
                     count = 0;
 
-                    string Query = "select organization.ID,organization.Name,organization.CustomFields.c.denomination,organization.CustomFields.c.relationship_status,organization.CustomFields.c.church_size,organization.CustomFields.standard.RegionalManager,organization.CustomFields.c.status,organization.CustomFields.c.country,organization.CustomFields.c.orgtype,organization.CustomFields.c.organisationtype as OrganisationType,organization.CustomFields.c.cptype,organization.CustomFields.c.postcodearea,organization.CustomFields.c.add_mailingcountrydrop,organization.CreatedTime, organization.UpdatedTime,organization.CustomFields.standard.Region,organization.CustomFields.c.add_postal_code from organization";
+                    string Query = "select organization.ID,organization.Name,organization.CustomFields.c.denomination as Denomination,organization.CustomFields.c.relationship_status as RelationshipStatus,organization.CustomFields.c.church_size as ChurchSize,organization.CustomFields.standard.RegionalManager as Manager,organization.CustomFields.c.status as Status,organization.CustomFields.c.country as Country,organization.CustomFields.c.orgtype as OrgType,organization.CustomFields.c.organisationtype as OrganisationType,organization.CustomFields.c.cptype as CPType,organization.CustomFields.c.postcodearea as PostcodeArea,organization.CustomFields.c.add_mailingcountrydrop as MailingCountry,organization.CreatedTime, organization.UpdatedTime,organization.CustomFields.standard.Region,organization.CustomFields.c.add_postal_code, organization.CustomFields.c.engagementindicator, organization.CustomFields.c.network from organization";
+
+                    //string Query = "select organization.ID,organization.Name,organization.CustomFields.c.denomination as Denomination,organization.CustomFields.c.relationship_status as RelationshipStatus,organization.CustomFields.c.church_size as ChurchSize,organization.CustomFields.standard.RegionalManager as Manager,organization.CustomFields.c.status as Status,organization.CustomFields.c.country as Country,organization.CustomFields.c.orgtype as OrgType,organization.CustomFields.c.organisationtype as OrganisationType,organization.CustomFields.c.cptype as CPType,organization.CustomFields.c.postcodearea as PostcodeArea,organization.CustomFields.c.add_mailingcountrydrop as MailingCountry,organization.CreatedTime, organization.UpdatedTime,organization.CustomFields.standard.Region,organization.CustomFields.c.add_postal_code, organization.CustomFields.c.engagementindicator, organization.CustomFields.c.network from organization where id=40723";
 
                     string updatedRecordsFilter = " where organization.CreatedTime >= '" + fromTime + "' OR organization.UpdatedTime >= '" + fromTime + "'";
                     string orderBy = " ORDER BY organization.ID ASC";
                     string limit = " LIMIT " + startLimit + ", " + pageSize;
 
-                    Query += updatedRecordsFilter + orderBy + limit;
-                    //Query += orderBy + limit;
+
+
+                    //Query += updatedRecordsFilter + orderBy + limit;
+                    Query += orderBy + limit;
 
                     byte[] byteArray;
 
@@ -1602,51 +1690,10 @@ namespace DWHSync
                                 {
                                     Columns.Add("OrganisationID");
                                 }
-                                else if (data == "denomination")
-                                {
-                                    Columns.Add("Denomination");
-                                }
-                                else if (data == "relationship_status")
-                                {
-                                    Columns.Add("RelationshipStatus");
-                                }
-                                else if (data == "church_size")
-                                {
-                                    Columns.Add("ChurchSize");
-                                }
-                                else if (data == "RegionalManager")
-                                {
-                                    Columns.Add("Manager");
-                                }
-                                else if (data == "status")
-                                {
-                                    Columns.Add("Status");
-                                }
-                                else if (data == "country")
-                                {
-                                    Columns.Add("Country");
-                                }
-                                else if (data == "orgtype")
-                                {
-                                    Columns.Add("OrgType");
-                                }
-                                else if (data == "cptype")
-                                {
-                                    Columns.Add("CPType");
-                                }
-                                else if (data == "postcodearea")
-                                {
-                                    Columns.Add("PostcodeArea");
-                                }
-                                else if (data == "add_mailingcountrydrop")
-                                {
-                                    Columns.Add("MailingCountry");
-                                }
                                 else
                                 {
                                     Columns.Add(data);
                                 }
-
                             }
                             sCommand.Append(string.Format(" ({0}) VALUES ", string.Join(",", Columns)));
 
@@ -1654,8 +1701,69 @@ namespace DWHSync
                             foreach (string row in results.CSVTables[0].Rows)
                             {
                                 List<string> values = row.Split('^').ToList();
-                                Rows.Add(string.Format("('{0}')", string.Join("','", values.Select(i => i.Replace("'", "''")))));
+                                string OrganisationID = string.IsNullOrEmpty(values[0]) ? "0" : values[0];
+                                string Name = string.IsNullOrEmpty(values[1]) ? "null" : values[1];
+                                if (!string.IsNullOrEmpty(Name))
+                                {
+                                    Name = Name.Replace("\"\"\"", "");
+                                    Name = Name.Replace("\"\"", "");
+                                    Name = Name.Replace("\"", "");
+                                    Name = Name.Replace("'", @"\'");
+                                }
+                                string Denomination = string.IsNullOrEmpty(values[2]) ? "null" : values[2];
+                                string RelationshipStatus = string.IsNullOrEmpty(values[3]) ? "null" : values[3];
+                                string ChurchSize = string.IsNullOrEmpty(values[4]) ? "null" : values[4];
+                                string Manager = string.IsNullOrEmpty(values[5]) ? "null" : values[5];
+                                string Status = string.IsNullOrEmpty(values[6]) ? "null" : values[6];
+                                string Country = string.IsNullOrEmpty(values[7]) ? "null" : values[7];
+                                string OrganisationType = string.IsNullOrEmpty(values[8]) ? "null" : values[8];
+                                string OrgType = string.IsNullOrEmpty(values[9]) ? "null" : values[9];
+                                string CPType = string.IsNullOrEmpty(values[10]) ? "null" : values[10];
+                                string PostcodeArea = string.IsNullOrEmpty(values[11]) ? "null" : values[11];
+                                string MailingCountry = string.IsNullOrEmpty(values[12]) ? "null" : values[12];
+                                string CreatedTime = "";
+                                string UpdatedTime = "";
+                                string Region = string.IsNullOrEmpty(values[15]) ? "null" : values[15];
+                                string add_postal_code = string.IsNullOrEmpty(values[16]) ? "null" : values[16];
+                                string EngagementIndicator = string.IsNullOrEmpty(values[17]) ? "null" : values[17];
+                                string Network = string.IsNullOrEmpty(values[18]) ? "null" : values[18];
+
+                                byte[] bytes = Encoding.ASCII.GetBytes(add_postal_code);
+                                byte[] filterBytes = new byte[10];
+                                if (bytes.Length > 7)
+                                {
+                                    for (int i = 0; i < bytes.Length; i++)
+                                    {
+                                        if (bytes[i] != 63)
+                                        {
+                                            filterBytes[i] = bytes[i];
+                                        }
+                                    }
+                                    add_postal_code = Encoding.Default.GetString(filterBytes.Select(s => s).Where(k => k != 0).ToArray());
+                                }
+
+                                if (!string.IsNullOrEmpty(values[13]))
+                                {
+                                    DateTime dt = DateTime.ParseExact(values[13], "yyyy-MM-ddTHH:mm:ss.fffZ", System.Globalization.CultureInfo.InvariantCulture);
+                                    CreatedTime = dt.ToString("yyyy-MM-dd HH:mm:ss");
+                                }
+                                else
+                                {
+                                    CreatedTime = "null";
+                                }
+                                if (!string.IsNullOrEmpty(values[14]))
+                                {
+                                    DateTime dt = DateTime.ParseExact(values[14], "yyyy-MM-ddTHH:mm:ss.fffZ", System.Globalization.CultureInfo.InvariantCulture);
+                                    UpdatedTime = dt.ToString("yyyy-MM-dd HH:mm:ss");
+                                }
+                                else
+                                {
+                                    UpdatedTime = "null";
+                                }
+                                string singleRow = OrganisationID + ",'" + Name + "'," + Denomination + "," + RelationshipStatus + "," + ChurchSize + "," + Manager + "," + Status + "," + Country + "," + OrganisationType + "," + OrgType + "," + CPType + ",'" + PostcodeArea + "'," + MailingCountry + ",'" + CreatedTime + "','" + UpdatedTime + "'," + Region + ",'" + add_postal_code + "'," + EngagementIndicator + "," + Network + "";
+                                Rows.Add(string.Format("({0})", singleRow));
                             }
+
                             sCommand.Append(string.Join(",", Rows));
 
                             sCommand.Append(" ON DUPLICATE KEY UPDATE ");
@@ -1665,6 +1773,7 @@ namespace DWHSync
                                 UpdatePart.Add(string.Format("{0} = VALUES({0})", Column));
                             }
                             sCommand.Append(string.Join(",", UpdatePart));
+                            sCommand.Replace("'null'", "null");
                             sCommand.Append(";");
 
                             mConnection.Open();
@@ -1691,7 +1800,7 @@ namespace DWHSync
             catch (Exception e)
             {
                 appLogger.Error("Error in Organisations - FromTime : " + fromTime + ", StartLimit : " + startLimit);
-
+                SendSMS("Error in Organisations for dwh_landing");
                 appLogger.Error(e.Message);
                 appLogger.Error(e.InnerException);
                 appLogger.Error(e.StackTrace);
@@ -2661,222 +2770,6 @@ namespace DWHSync
             return Total;
         }
 
-        public void SyncCDPayment()
-        {
-            string fromTime = Convert.ToDateTime("2007-01-01").ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
-            //string lastdate = Convert.ToDateTime("2019-07-20").ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
-            string lastdate = DateTime.Today.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
-            int pageSize = 2000;
-            int count = 0;
-            long startLimit = 0;
-            int TotalCount = 0;
-            try
-            {
-                ClientInfoHeader clientInfoHeader = new ClientInfoHeader();
-                APIAccessResponseHeaderType head = new APIAccessResponseHeaderType();
-                clientInfoHeader.AppID = "Get Need";
-
-                do
-                {
-                    count = 0;
-
-                    string DataFilter = "SCBS_DON.DonationCdPayment.CreatedTime BETWEEN '" + fromTime + "' AND '" + lastdate + "'";
-
-
-                    string Query = "SELECT SCBS_DON.DonationCdPayment.ID ,SCBS_DON.DonationCdPayment.CVV ,SCBS_DON.DonationCdPayment.CardNumber ,SCBS_DON.DonationCdPayment.Country ,SCBS_DON.DonationCdPayment.County ,SCBS_DON.DonationCdPayment.CreatedByAccount ,SCBS_DON.DonationCdPayment.CreatedTime ,SCBS_DON.DonationCdPayment.Email ,SCBS_DON.DonationCdPayment.EndMonth ,SCBS_DON.DonationCdPayment.EndYear ,SCBS_DON.DonationCdPayment.EpdqReference ,SCBS_DON.DonationCdPayment.FirstName ,SCBS_DON.DonationCdPayment.Issue ,SCBS_DON.DonationCdPayment.LastName ,SCBS_DON.DonationCdPayment.NameOnCard ,SCBS_DON.DonationCdPayment.PaymentCreateDate ,SCBS_DON.DonationCdPayment.Postcode ,SCBS_DON.DonationCdPayment.StartMonth ,SCBS_DON.DonationCdPayment.StartYear ,SCBS_DON.DonationCdPayment.Supporter ,SCBS_DON.DonationCdPayment.SupporterGroup ,SCBS_DON.DonationCdPayment.Title ,SCBS_DON.DonationCdPayment.Town ,SCBS_DON.DonationCdPayment.UpdatedByAccount ,SCBS_DON.DonationCdPayment.UpdatedTime ,SCBS_DON.DonationCdPayment.WebUser FROM SCBS_DON.DonationCdPayment";
-
-
-                    string updatedRecordsFilter = " WHERE SCBS_DON.DonationCdPayment.CreatedTime BETWEEN '" + fromTime + "' AND '" + lastdate + "'";
-                    string orderBy = " ORDER BY SCBS_DON.DonationCdPayment.ID ASC";
-                    string limit = " LIMIT " + startLimit + ", " + pageSize;
-
-                    Query += updatedRecordsFilter + orderBy + limit;
-                    //Query += orderBy + limit;
-
-
-                    byte[] byteArray;
-
-                    CSVTableSet results = null;
-                    head = rightNowSyncPortClient.QueryCSV(clientInfoHeader, api, Query, pageSize, "^", false, true, out results, out byteArray);
-                    count = results.CSVTables[0].Rows.Length;
-
-
-                    if (count > 0)
-                    {
-                        appLogger.Info("Updating " + count + " CDPayment records...");
-                        StringBuilder sCommand = new StringBuilder("INSERT INTO CDPayment");
-                        using (MySqlConnection mConnection = new MySqlConnection(myCUKDEVConnectionString))
-                        {
-                            List<string> Columns = new List<string>();
-                            foreach (string data in results.CSVTables[0].Columns.Split('^'))
-                            {
-                                if (data == "ID")
-                                    Columns.Add("CDPaymentID");
-                                else
-                                    Columns.Add(data);
-                            }
-                            sCommand.Append(string.Format(" ({0}) VALUES ", string.Join(",", Columns)));
-
-                            List<string> Rows = new List<string>();
-                            foreach (string row in results.CSVTables[0].Rows)
-                            {
-                                //row
-                                string New_row = row.Replace("'", " ");
-                                List<string> values = New_row.Split('^').ToList();
-
-
-                                Rows.Add(string.Format("('{0}')", string.Join("','", values.Select(i => i.Replace("'", "''")))));
-                            }
-                            sCommand.Append(string.Join(",", Rows));
-
-                            sCommand.Append(" ON DUPLICATE KEY UPDATE ");
-                            List<string> UpdatePart = new List<string>();
-                            foreach (string Column in Columns)
-                            {
-                                UpdatePart.Add(string.Format("{0} = VALUES({0})", Column));
-                            }
-                            sCommand.Append(string.Join(",", UpdatePart));
-                            sCommand.Append(";");
-
-                            mConnection.Open();
-                            using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), mConnection))
-                            {
-                                myCmd.CommandType = CommandType.Text;
-                                myCmd.ExecuteNonQuery();
-                            }
-                            appLogger.Info(count + " CDPayment records updated successfully");
-                        }
-
-                        // For next set of data
-                        TotalCount += count;
-                        startLimit += pageSize;
-                    }
-                    else
-                    {
-                        break;
-                    }
-
-                } while (true);
-            }
-            catch (Exception e)
-            {
-                appLogger.Error("Error in CDPaymentID - StartLimit : " + startLimit);
-
-                appLogger.Error(e.Message);
-                appLogger.Error(e.InnerException);
-                appLogger.Error(e.StackTrace);
-            }
-
-        }
-
-        public void UpdateCDPayment()
-        {
-            string fromTime = Convert.ToDateTime("2001-01-01").ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
-            //string lastdate = Convert.ToDateTime("2019-07-20").ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
-            string lastdate = DateTime.Today.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'");
-            int pageSize = 2000;
-            int count = 0;
-            long startLimit = 0;
-            int TotalCount = 0;
-            try
-            {
-                ClientInfoHeader clientInfoHeader = new ClientInfoHeader();
-                APIAccessResponseHeaderType head = new APIAccessResponseHeaderType();
-                clientInfoHeader.AppID = "Get Need";
-
-                do
-                {
-                    count = 0;
-
-                    string DataFilter = "SCBS_DON.DonationCdPayment.CreatedTime BETWEEN '" + fromTime + "' AND '" + lastdate + "'";
-
-
-                    string Query = "SELECT SCBS_DON.DonationCdPayment.ID SCBS_DON.DonationCdPayment.WebUser FROM SCBS_DON.DonationCdPayment";
-
-
-                    string updatedRecordsFilter = " WHERE SCBS_DON.DonationCdPayment.CreatedTime BETWEEN '" + fromTime + "' AND '" + lastdate + "'";
-                    string orderBy = " ORDER BY SCBS_DON.DonationCdPayment.ID ASC";
-                    string limit = " LIMIT " + startLimit + ", " + pageSize;
-
-                    Query += updatedRecordsFilter + orderBy + limit;
-                    //Query += orderBy + limit;
-
-
-                    byte[] byteArray;
-
-                    CSVTableSet results = null;
-                    head = rightNowSyncPortClient.QueryCSV(clientInfoHeader, api, Query, pageSize, "^", false, true, out results, out byteArray);
-                    count = results.CSVTables[0].Rows.Length;
-
-
-                    if (count > 0)
-                    {
-                        appLogger.Info("Updating " + count + " CDPayment records...");
-                        StringBuilder sCommand = new StringBuilder("INSERT INTO CDPayment");
-                        using (MySqlConnection mConnection = new MySqlConnection(myCUKDEVConnectionString))
-                        {
-                            List<string> Columns = new List<string>();
-                            foreach (string data in results.CSVTables[0].Columns.Split('^'))
-                            {
-                                if (data == "ID")
-                                    Columns.Add("CDPaymentID");
-                                else
-                                    Columns.Add(data);
-                            }
-                            sCommand.Append(string.Format(" ({0}) VALUES ", string.Join(",", Columns)));
-
-                            List<string> Rows = new List<string>();
-                            foreach (string row in results.CSVTables[0].Rows)
-                            {
-                                //row
-                                string New_row = row.Replace("'", " ");
-                                List<string> values = New_row.Split('^').ToList();
-
-
-                                Rows.Add(string.Format("('{0}')", string.Join("','", values.Select(i => i.Replace("'", "''")))));
-                            }
-                            sCommand.Append(string.Join(",", Rows));
-
-                            sCommand.Append(" ON DUPLICATE KEY UPDATE ");
-                            List<string> UpdatePart = new List<string>();
-                            foreach (string Column in Columns)
-                            {
-                                UpdatePart.Add(string.Format("{0} = VALUES({0})", Column));
-                            }
-                            sCommand.Append(string.Join(",", UpdatePart));
-                            sCommand.Append(";");
-
-                            mConnection.Open();
-                            using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), mConnection))
-                            {
-                                myCmd.CommandType = CommandType.Text;
-                                myCmd.ExecuteNonQuery();
-                            }
-                            appLogger.Info(count + " CDPayment records updated successfully");
-                        }
-
-                        // For next set of data
-                        TotalCount += count;
-                        startLimit += pageSize;
-                    }
-                    else
-                    {
-                        break;
-                    }
-
-                } while (true);
-            }
-            catch (Exception e)
-            {
-                appLogger.Error("Error in CDPayment - StartLimit : " + startLimit);
-
-                appLogger.Error(e.Message);
-                appLogger.Error(e.InnerException);
-                appLogger.Error(e.StackTrace);
-            }
-
-        }
-
         public int SyncDonation(string fromTime)
         {
             int pageSize = 2000;
@@ -3303,6 +3196,7 @@ namespace DWHSync
             }
             return Total;
         }
+
         public int SyncEncounterAttendance(string fromTime)
         {
             int pageSize = 2000;
@@ -3439,6 +3333,7 @@ namespace DWHSync
             }
             return Total;
         }
+
         public int SyncEncounterVisit(string fromTime)
         {
             int pageSize = 2000;
@@ -3579,6 +3474,7 @@ namespace DWHSync
             }
             return Total;
         }
+
         public int SyncActionHistory(string fromTime)
         {
             int pageSize = 2000;
@@ -6166,103 +6062,6 @@ namespace DWHSync
             }
             return Total;
         }
-        public void SycnMajorDonor()
-        {
-            string Table_Name = "  Major Donor ";
-            appLogger.Info("Sync" + Table_Name + "Process Started...");
-            MySql.Data.MySqlClient.MySqlConnection mConnection;
-            mConnection = new MySql.Data.MySqlClient.MySqlConnection();
-            DataListLoadRequest req = new DataListLoadRequest();
-            req.ClientAppInfo = GetRequestHeader();
-            req.DataListID = new Guid("8d624457-a0c1-4b38-984c-1e71a78d556e");
-            req.IncludeMetaData = true;
-            var dfi = new DataFormItem();
-            req.Parameters = dfi;
-            var result = _service.DataListLoad(req);
-            int Total = 0;
-            int counter = 0;
-            if (result.TotalRowsInReply > 0)
-            {
-                appLogger.Info("Updating " + result.TotalAvailableRows + Table_Name + " records");
-                try
-                {
-                    mConnection.ConnectionString = myDWH_LandingConnectionString;
-                    StringBuilder sCommand = new StringBuilder("INSERT INTO `MajorDonor`(`BBID`, `Name`, `Postcode`, `ProspectStatus`, `ProspectManager`, `ProspectManagerStartDate`, `ProspectManagerEndDate`, `PreviousProspectManager`, `PreviousProspectManagerStartDate`, `PreviousProspectManagerEndDate`, `StepDate`, `StepObjective`, `StepStage`, `StepStatus`, `AskDate`, `AskAmount`, `ResponceDate`, `AcceptedAmount`, `OpportunityStatus`, `Designation`, `InterventionName`, `InterventionType`, `Country`,`Constituencydateto`,`Associatedrevenue`) VALUES ");
-                    List<DataListResultRow> row = new List<DataListResultRow>();
-                    List<string> stringRow = new List<string>();
-                    string[] rows = new string[25];
-                    string[] alteredRows = new string[25];
-                    for (int i = 0; i < result.TotalAvailableRows; i++)
-                    {
-                        rows = result.Rows[i].Values;
-                        Array.Copy(rows, alteredRows, 25);//this done because 3 extra hidden value coming in rows
-                        //20,11 -> ',' ,1,3,4,7,8,9,10,11 - '
-                        counter++;
-                        alteredRows[20] = string.IsNullOrEmpty(alteredRows[20]) ? "null" : alteredRows[20].Replace(",", "");
-                        alteredRows[11] = string.IsNullOrEmpty(alteredRows[11]) ? "null" : alteredRows[11].Replace(",", "");
-
-                        alteredRows[1] = string.IsNullOrEmpty(alteredRows[1]) ? "null" : alteredRows[1].Replace("'", "");
-                        alteredRows[3] = string.IsNullOrEmpty(alteredRows[3]) ? "null" : alteredRows[3].Replace("'", "");
-                        alteredRows[4] = string.IsNullOrEmpty(alteredRows[4]) ? "null" : alteredRows[4].Replace("'", "");
-                        alteredRows[7] = string.IsNullOrEmpty(alteredRows[7]) ? "null" : alteredRows[7].Replace("'", "");
-                        alteredRows[11] = string.IsNullOrEmpty(alteredRows[11]) ? "null" : alteredRows[11].Replace("'", "");
-
-                        alteredRows[15] = !string.IsNullOrEmpty(alteredRows[15]) ? alteredRows[15] : "null";
-                        alteredRows[17] = !string.IsNullOrEmpty(alteredRows[17]) ? alteredRows[17] : "null";
-                        alteredRows[24] = !string.IsNullOrEmpty(alteredRows[24]) ? alteredRows[24] : "null";
-
-
-                        alteredRows[5] = !string.IsNullOrEmpty(alteredRows[5]) ? GetDateFromDateTime(alteredRows[5]) : "null";
-                        alteredRows[6] = !string.IsNullOrEmpty(alteredRows[6]) ? GetDateFromDateTime(alteredRows[6]) : "null";
-                        alteredRows[8] = !string.IsNullOrEmpty(alteredRows[8]) ? GetDateFromDateTime(alteredRows[8]) : "null";
-                        alteredRows[9] = !string.IsNullOrEmpty(alteredRows[9]) ? GetDateFromDateTime(alteredRows[9]) : "null";
-                        alteredRows[10] = !string.IsNullOrEmpty(alteredRows[10]) ? GetDateFromDateTime(alteredRows[10]) : "null";
-                        alteredRows[14] = !string.IsNullOrEmpty(alteredRows[14]) ? GetDateFromDateTime(alteredRows[14]) : "null";
-                        alteredRows[16] = !string.IsNullOrEmpty(alteredRows[16]) ? GetDateFromDateTime(alteredRows[16]) : "null";
-                        alteredRows[23] = !string.IsNullOrEmpty(alteredRows[23]) ? GetDateFromDateTime(alteredRows[23]) : "null";
-
-                        if (string.IsNullOrEmpty(alteredRows[6]))
-                        {
-                            alteredRows[6] = "null";
-                        }
-
-                        string singleRow = string.Join("','", alteredRows);
-                        stringRow.Add(string.Format("('{0}')", string.Join("','", singleRow)));
-                    }
-                    sCommand.Append(string.Join(",", stringRow));
-                    //sCommand.Append(" ON DUPLICATE KEY UPDATE BBID = Value(BBID),Name = Value(Name),Postcode = Value(Postcode),ProspectStatus = Value(ProspectStatus),ProspectManager = Value(ProspectManager),ProspectManagerStartDate = Value(ProspectManagerStartDate),ProspectManagerEndDate = Value(ProspectManagerEndDate),PreviousProspectManager = Value(PreviousProspectManager),PreviousProspectManagerStartDate = Value(PreviousProspectManagerStartDate),PreviousProspectManagerEndDate = Value(PreviousProspectManagerEndDate),StepDate = Value(StepDate),StepObjective = Value(StepObjective),StepStage = Value(StepStage),StepStatus = Value(StepStatus),AskDate = Value(AskDate),AskAmount = Value(AskAmount),ResponceDate = Value(ResponceDate),AcceptedAmount = Value(AcceptedAmount),OpportunityStatus = Value(OpportunityStatus),Designation = Value(Designation),InterventionName = Value(InterventionName),InterventionType = Value(InterventionType),Country = Value(Country),Constituencydateto = Value(Constituencydateto),Associatedrevenue = Value(Associatedrevenue)");
-                    sCommand.Replace("'null'", "null");
-                    sCommand.Append(";");
-                    mConnection.Open();
-                    using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), mConnection))
-                    {
-                        myCmd.CommandType = CommandType.Text;
-                        myCmd.ExecuteNonQuery(); Total += result.TotalRowsInReply;
-                    }
-                    appLogger.Info(result.TotalAvailableRows + Table_Name + " records updated successfully");
-
-                }
-                catch (Exception e)
-                {
-                    mConnection.Close();
-                    appLogger.Error("Error in Inserting" + Table_Name + counter);
-                    appLogger.Error(e.Message);
-                    appLogger.Error(e.InnerException);
-                    appLogger.Error(e.StackTrace);
-
-                }
-                finally
-                {
-                    mConnection.Close();
-                }
-
-            }
-            else
-            {
-                appLogger.Info("No " + Table_Name + " Records Found To Insert into Database");
-            }
-            appLogger.Info("Sync" + Table_Name + "Process Ended...");
-        }
         public int SyncCommitment_Landing(string fromTime)
         {
             int pageSize = 2000;
@@ -7303,7 +7102,7 @@ namespace DWHSync
                 {
                     count = 0;
 
-                    string Query = "SELECT CPPathway.Activity.ID,CPPathway.Activity.AVAvailable,CPPathway.Activity.ActivityChurchContact,CPPathway.Activity.ActivityDate,CPPathway.Activity.ActivityDateBooked,CPPathway.Activity.ActivityLeader,CPPathway.Activity.ActivityNotes,CPPathway.Activity.ActivityType,CPPathway.Activity.ActivityVolunteer,CPPathway.Activity.ActivityYear,CPPathway.Activity.Activity_Assigned,CPPathway.Activity.Activity_ExpectedSponsorships,CPPathway.Activity.AdHocFollowUpDateCompleted,CPPathway.Activity.AdHocFollowUpDateDue,CPPathway.Activity.AdHocFollowUp_Assigned,CPPathway.Activity.AdHocFollowUp_ChchContact,CPPathway.Activity.AdHocFollowUp_Notes,CPPathway.Activity.AdHocFollowUp_Reminder,CPPathway.Activity.AutomateScheduledFollowUp,CPPathway.Activity.CExpBangtailsRequired,CPPathway.Activity.CExpChildRequirements,CPPathway.Activity.CExpConfirmed,CPPathway.Activity.CExpPendingApproval,CPPathway.Activity.CExpProfilesRequired,CPPathway.Activity.CExpSourceCode,CPPathway.Activity.ChildRequirements,CPPathway.Activity.ChildRequirementsNew,CPPathway.Activity.ChildrenOnHoldFrom,CPPathway.Activity.CompassionExperience,CPPathway.Activity.ContactEmail,CPPathway.Activity.CreatedByAccount,CPPathway.Activity.CreatedTime,CPPathway.Activity.NumBangtailsRequired,CPPathway.Activity.NumLeafletsRequired,CPPathway.Activity.NumProfilesRequired,CPPathway.Activity.OrderProfilesOn,CPPathway.Activity.Organisation,CPPathway.Activity.Outcome,CPPathway.Activity.PostActivity_Attendance,CPPathway.Activity.PostActivity_Comments,CPPathway.Activity.PostActivity_Monies,CPPathway.Activity.PostActivity_NoMonies,CPPathway.Activity.PostActivity_TotalSponsorships,CPPathway.Activity.PresentationRequired,CPPathway.Activity.PresentationSupplied,CPPathway.Activity.PresentationTime,CPPathway.Activity.PresentationType,CPPathway.Activity.ProfileExpiry,CPPathway.Activity.ScheduledFollowUp1_Assigned,CPPathway.Activity.ScheduledFollowUp1_ChchContact,CPPathway.Activity.ScheduledFollowUp1_Completed,CPPathway.Activity.ScheduledFollowUp1_Notes,CPPathway.Activity.ScheduledFollowUp1_Reminder,CPPathway.Activity.ScheduledFollowUp2_Assigned,CPPathway.Activity.ScheduledFollowUp2_ChchContact,CPPathway.Activity.ScheduledFollowUp2_Completed,CPPathway.Activity.ScheduledFollowUp2_Notes,CPPathway.Activity.ScheduledFollowUp2_Reminder,CPPathway.Activity.ScheduledFollowUp3_Assigned,CPPathway.Activity.ScheduledFollowUp3_ChchContact,CPPathway.Activity.ScheduledFollowUp3_Completed,CPPathway.Activity.ScheduledFollowUp3_Notes,CPPathway.Activity.ScheduledFollowUp3_Reminder,CPPathway.Activity.ScheduledFollowUp4_Assigned,CPPathway.Activity.ScheduledFollowUp4_ChchContact,CPPathway.Activity.ScheduledFollowUp4_Completed,CPPathway.Activity.ScheduledFollowUp4_Notes,CPPathway.Activity.ScheduledFollowUp4_Reminder,CPPathway.Activity.ServiceTime,CPPathway.Activity.SourceCode,CPPathway.Activity.UpdatedByAccount,CPPathway.Activity.UpdatedTime,CPPathway.Activity.VolunteerHours,CPPathway.Activity.WebSMSCampaignStart,CPPathway.Activity.WebSMSCampaignEnd,CPPathway.Activity.WebSMSRequired as WebSMSProfilesRequired,CPPathway.Activity.Outcome_UpdatedTime as OutcomeDateUpdated,CPPathway.Activity.Carols,CPPathway.Activity.Ambassador,CPPathway.Activity.AmbassadorAgreed FROM CPPathway.Activity ";
+                    string Query = "SELECT CPPathway.Activity.ID,CPPathway.Activity.AVAvailable,CPPathway.Activity.ActivityChurchContact,CPPathway.Activity.ActivityDate,CPPathway.Activity.ActivityDateBooked,CPPathway.Activity.ActivityLeader,CPPathway.Activity.ActivityNotes,CPPathway.Activity.ActivityType,CPPathway.Activity.ActivityVolunteer,CPPathway.Activity.ActivityYear,CPPathway.Activity.Activity_Assigned,CPPathway.Activity.Activity_ExpectedSponsorships,CPPathway.Activity.AdHocFollowUpDateCompleted,CPPathway.Activity.AdHocFollowUpDateDue,CPPathway.Activity.AdHocFollowUp_Assigned,CPPathway.Activity.AdHocFollowUp_ChchContact,CPPathway.Activity.AdHocFollowUp_Notes,CPPathway.Activity.AdHocFollowUp_Reminder,CPPathway.Activity.AutomateScheduledFollowUp,CPPathway.Activity.CExpBangtailsRequired,CPPathway.Activity.CExpChildRequirements,CPPathway.Activity.CExpConfirmed,CPPathway.Activity.CExpPendingApproval,CPPathway.Activity.CExpProfilesRequired,CPPathway.Activity.CExpSourceCode,CPPathway.Activity.ChildRequirements,CPPathway.Activity.ChildRequirementsNew,CPPathway.Activity.ChildrenOnHoldFrom,CPPathway.Activity.CompassionExperience,CPPathway.Activity.ContactEmail,CPPathway.Activity.CreatedByAccount,CPPathway.Activity.CreatedTime,CPPathway.Activity.NumBangtailsRequired,CPPathway.Activity.NumLeafletsRequired,CPPathway.Activity.NumProfilesRequired,CPPathway.Activity.OrderProfilesOn,CPPathway.Activity.Organisation,CPPathway.Activity.Outcome,CPPathway.Activity.PostActivity_Attendance,CPPathway.Activity.PostActivity_Comments,CPPathway.Activity.PostActivity_Monies,CPPathway.Activity.PostActivity_NoMonies,CPPathway.Activity.PostActivity_TotalSponsorships,CPPathway.Activity.PresentationRequired,CPPathway.Activity.PresentationSupplied,CPPathway.Activity.PresentationTime,CPPathway.Activity.PresentationType,CPPathway.Activity.ProfileExpiry,CPPathway.Activity.ScheduledFollowUp1_Assigned,CPPathway.Activity.ScheduledFollowUp1_ChchContact,CPPathway.Activity.ScheduledFollowUp1_Completed,CPPathway.Activity.ScheduledFollowUp1_Notes,CPPathway.Activity.ScheduledFollowUp1_Reminder,CPPathway.Activity.ScheduledFollowUp2_Assigned,CPPathway.Activity.ScheduledFollowUp2_ChchContact,CPPathway.Activity.ScheduledFollowUp2_Completed,CPPathway.Activity.ScheduledFollowUp2_Notes,CPPathway.Activity.ScheduledFollowUp2_Reminder,CPPathway.Activity.ScheduledFollowUp3_Assigned,CPPathway.Activity.ScheduledFollowUp3_ChchContact,CPPathway.Activity.ScheduledFollowUp3_Completed,CPPathway.Activity.ScheduledFollowUp3_Notes,CPPathway.Activity.ScheduledFollowUp3_Reminder,CPPathway.Activity.ScheduledFollowUp4_Assigned,CPPathway.Activity.ScheduledFollowUp4_ChchContact,CPPathway.Activity.ScheduledFollowUp4_Completed,CPPathway.Activity.ScheduledFollowUp4_Notes,CPPathway.Activity.ScheduledFollowUp4_Reminder,CPPathway.Activity.ServiceTime,CPPathway.Activity.SourceCode,CPPathway.Activity.UpdatedByAccount,CPPathway.Activity.UpdatedTime,CPPathway.Activity.VolunteerHours,CPPathway.Activity.WebSMSCampaignStart,CPPathway.Activity.WebSMSCampaignEnd,CPPathway.Activity.WebSMSRequired as WebSMSProfilesRequired,CPPathway.Activity.Outcome_UpdatedTime as OutcomeDateUpdated,CPPathway.Activity.Carols,CPPathway.Activity.Ambassador,CPPathway.Activity.AmbassadorAgreed ,CPPathway.Activity.ActivityType_Other as ActivityTypeOther FROM CPPathway.Activity ";
 
                     string updatedRecordsFilter = " WHERE CPPathway.Activity.CreatedTime >= '" + fromTime + "' OR CPPathway.Activity.UpdatedTime>= '" + fromTime + "'";
                     string orderBy = " ORDER BY CPPathway.Activity.ID ASC";
@@ -7322,7 +7121,7 @@ namespace DWHSync
                     {
                         appLogger.Info("Updating " + count + " CPPathwayActivity records...");
                         StringBuilder sCommand = new StringBuilder("SET FOREIGN_KEY_CHECKS=OFF;INSERT INTO CPPathwayActivity");
-                        using (MySqlConnection mConnection = new MySqlConnection(myDWH_LandingConnectionString))
+                        using (MySqlConnection mConnection = new MySqlConnection(myConnectionString))
                         {
                             List<string> Columns = new List<string>();
                             foreach (string data in results.CSVTables[0].Columns.Split('∧'))
@@ -7413,7 +7212,7 @@ namespace DWHSync
                                 string ServiceTime = string.IsNullOrEmpty(values[68]) ? "null" : values[68];
                                 string SourceCode = string.IsNullOrEmpty(values[69]) ? "null" : values[69];
                                 string UpdatedByAccount = string.IsNullOrEmpty(values[70]) ? "null" : values[70];
-                                string UpdatedTime = "";//71
+                                string UpdatedTime = "";//72
                                 string VolunteerHours = string.IsNullOrEmpty(values[72]) ? "null" : values[72];
                                 string WebSMSCampaignStart = !string.IsNullOrEmpty(values[73]) ? GetDateFromDateTime(values[73]) : "null";
                                 string WebSMSCampaignEnd = !string.IsNullOrEmpty(values[74]) ? GetDateFromDateTime(values[74]) : "null";
@@ -7422,6 +7221,8 @@ namespace DWHSync
                                 string Carols = string.IsNullOrEmpty(values[77]) ? "null" : values[77];
                                 string Ambassador = string.IsNullOrEmpty(values[78]) ? "null" : values[78];
                                 string AmbassadorAgreed = string.IsNullOrEmpty(values[79]) ? "null" : values[79];
+                                string ActivityTypeOther = string.IsNullOrEmpty(values[80]) ? "null" : values[80];
+
 
                                 if (!string.IsNullOrEmpty(values[76]))
                                 {
@@ -7481,7 +7282,7 @@ namespace DWHSync
                                     CExpConfirmed = "null";
                                 }
 
-                                string singleRow = ActivityID + "," + AVAvailable + "," + ActivityChurchContact + ",'" + ActivityDate + "','" + ActivityDateBooked + "'," + ActivityLeader + ",'" + ActivityNotes + "'," + ActivityType + "," + ActivityVolunteer + "," + ActivityYear + "," + Activity_Assigned + "," + Activity_ExpectedSponsorships + ",'" + AdHocFollowUpDateCompleted + "','" + AdHocFollowUpDateDue + "'," + AdHocFollowUp_Assigned + "," + AdHocFollowUp_ChchContact + ",'" + AdHocFollowUp_Notes + "'," + AdHocFollowUp_Reminder + "," + AutomateScheduledFollowUp + "," + CExpBangtailsRequired + ",'" + CExpChildRequirements + "','" + CExpConfirmed + "'," + CExpPendingApproval + "," + CExpProfilesRequired + ",'" + CExpSourceCode + "','" + ChildRequirements + "','" + ChildRequirementsNew + "','" + ChildrenOnHoldFrom + "'," + CompassionExperience + ",'" + ContactEmail + "'," + CreatedByAccount + ",'" + CreatedTime + "'," + NumBangtailsRequired + "," + NumLeafletsRequired + "," + NumProfilesRequired + ",'" + OrderProfilesOn + "'," + Organisation + "," + Outcome + "," + PostActivity_Attendance + ",'" + PostActivity_Comments + "'," + PostActivity_Monies + "," + PostActivity_NoMonies + "," + PostActivity_TotalSponsorships + "," + PresentationRequired + "," + PresentationSupplied + ",'" + PresentationTime + "'," + PresentationType + ",'" + ProfileExpiry + "'," + ScheduledFollowUp1_Assigned + "," + ScheduledFollowUp1_ChchContact + ",'" + ScheduledFollowUp1_Completed + "','" + ScheduledFollowUp1_Notes + "'," + ScheduledFollowUp1_Reminder + "," + ScheduledFollowUp2_Assigned + "," + ScheduledFollowUp2_ChchContact + ",'" + ScheduledFollowUp2_Completed + "','" + ScheduledFollowUp2_Notes + "'," + ScheduledFollowUp2_Reminder + "," + ScheduledFollowUp3_Assigned + "," + ScheduledFollowUp3_ChchContact + ",'" + ScheduledFollowUp3_Completed + "','" + ScheduledFollowUp3_Notes + "'," + ScheduledFollowUp3_Reminder + "," + ScheduledFollowUp4_Assigned + "," + ScheduledFollowUp4_ChchContact + ",'" + ScheduledFollowUp4_Completed + "','" + ScheduledFollowUp4_Notes + "'," + ScheduledFollowUp4_Reminder + ",'" + ServiceTime + "','" + SourceCode + "'," + UpdatedByAccount + ",'" + UpdatedTime + "'," + VolunteerHours + ",'" + WebSMSCampaignStart + "','" + WebSMSCampaignEnd + "'," + WebSMSProfilesRequired + ",'" + OutcomeDateUpdated + "'," + Carols + "," + Ambassador + "," + AmbassadorAgreed + "";
+                                string singleRow = ActivityID + "," + AVAvailable + "," + ActivityChurchContact + ",'" + ActivityDate + "','" + ActivityDateBooked + "'," + ActivityLeader + ",'" + ActivityNotes + "'," + ActivityType + "," + ActivityVolunteer + "," + ActivityYear + "," + Activity_Assigned + "," + Activity_ExpectedSponsorships + ",'" + AdHocFollowUpDateCompleted + "','" + AdHocFollowUpDateDue + "'," + AdHocFollowUp_Assigned + "," + AdHocFollowUp_ChchContact + ",'" + AdHocFollowUp_Notes + "'," + AdHocFollowUp_Reminder + "," + AutomateScheduledFollowUp + "," + CExpBangtailsRequired + ",'" + CExpChildRequirements + "','" + CExpConfirmed + "'," + CExpPendingApproval + "," + CExpProfilesRequired + ",'" + CExpSourceCode + "','" + ChildRequirements + "','" + ChildRequirementsNew + "','" + ChildrenOnHoldFrom + "'," + CompassionExperience + ",'" + ContactEmail + "'," + CreatedByAccount + ",'" + CreatedTime + "'," + NumBangtailsRequired + "," + NumLeafletsRequired + "," + NumProfilesRequired + ",'" + OrderProfilesOn + "'," + Organisation + "," + Outcome + "," + PostActivity_Attendance + ",'" + PostActivity_Comments + "'," + PostActivity_Monies + "," + PostActivity_NoMonies + "," + PostActivity_TotalSponsorships + "," + PresentationRequired + "," + PresentationSupplied + ",'" + PresentationTime + "'," + PresentationType + ",'" + ProfileExpiry + "'," + ScheduledFollowUp1_Assigned + "," + ScheduledFollowUp1_ChchContact + ",'" + ScheduledFollowUp1_Completed + "','" + ScheduledFollowUp1_Notes + "'," + ScheduledFollowUp1_Reminder + "," + ScheduledFollowUp2_Assigned + "," + ScheduledFollowUp2_ChchContact + ",'" + ScheduledFollowUp2_Completed + "','" + ScheduledFollowUp2_Notes + "'," + ScheduledFollowUp2_Reminder + "," + ScheduledFollowUp3_Assigned + "," + ScheduledFollowUp3_ChchContact + ",'" + ScheduledFollowUp3_Completed + "','" + ScheduledFollowUp3_Notes + "'," + ScheduledFollowUp3_Reminder + "," + ScheduledFollowUp4_Assigned + "," + ScheduledFollowUp4_ChchContact + ",'" + ScheduledFollowUp4_Completed + "','" + ScheduledFollowUp4_Notes + "'," + ScheduledFollowUp4_Reminder + ",'" + ServiceTime + "','" + SourceCode + "'," + UpdatedByAccount + ",'" + UpdatedTime + "'," + VolunteerHours + ",'" + WebSMSCampaignStart + "','" + WebSMSCampaignEnd + "'," + WebSMSProfilesRequired + ",'" + OutcomeDateUpdated + "'," + Carols + "," + Ambassador + "," + AmbassadorAgreed + "," + ActivityTypeOther + "";
                                 Rows.Add(string.Format("({0})", singleRow));
 
 
@@ -7886,7 +7687,6 @@ namespace DWHSync
             }
             return Total;
         }
-
         public int SyncBeneficiaryTransfer_Landing(string fromTime)
         {
             int pageSize = 2000;
@@ -8027,7 +7827,6 @@ namespace DWHSync
             }
             return Total;
         }
-
         public int SyncEncounterAttendance_Landing(string fromTime)
         {
             int pageSize = 2000;
@@ -8165,7 +7964,6 @@ namespace DWHSync
             }
             return Total;
         }
-
         public int SyncEncounterVisit_Landing(string fromTime)
         {
             int pageSize = 2000;
@@ -8307,7 +8105,6 @@ namespace DWHSync
             }
             return Total;
         }
-
         public int SyncActionHistory_Landing(string fromTime)
         {
             int pageSize = 2000;
@@ -8439,7 +8236,6 @@ namespace DWHSync
             }
             return Total;
         }
-
         public int SyncProjectOrgLinks_Landing(string fromTime)
         {
             int pageSize = 2000;
@@ -8665,668 +8461,12 @@ namespace DWHSync
             }
             return Total;
         }
-
-
-        public int GetLastIDdwh_landingNotifications()
-        {
-            int total = 0;
-            MySql.Data.MySqlClient.MySqlConnection conn = new MySql.Data.MySqlClient.MySqlConnection();
-            try
-            {
-
-                conn.ConnectionString = myDWH_LandingConnectionString;
-                conn.Open();
-
-                string Query = "Select Max(ID) as ID from Notification";
-                MySqlCommand MyCommand2 = new MySqlCommand(Query, conn);
-                MySqlDataReader dr;
-                dr = MyCommand2.ExecuteReader();
-                while (dr.Read())
-                {
-                    total = Convert.ToInt32(dr.GetString("ID"));
-                }
-                conn.Close();
-            }
-            catch (Exception e)
-            {
-                appLogger.Error("Error in getting total records for Notifications record in DB : " + e.Message);
-                appLogger.Error(e.Message);
-                appLogger.Error(e.InnerException);
-                appLogger.Error(e.StackTrace);
-            }
-            finally
-            {
-                conn.Close();
-            }
-            return total;
-        }
-        public int SyncNotificationDwh_landing()
-        {
-            appLogger.Info("Notification sync process started...");
-            int pageSize = 10000;
-            int count = 0;
-            long startLimit = 0;
-            int Total = 0;
-            try
-            {
-                do
-                {
-                    int LastInsertedID = GetLastIDdwh_landingNotifications();
-                    string Query = "SELECT * FROM `notifications` where ID >" + LastInsertedID;
-                    //string Query = "SELECT * FROM `notifications`";
-                    string orderBy = " ORDER BY ID ASC";
-                    string limit = " LIMIT " + startLimit + ", " + pageSize;
-                    Query += orderBy + limit;
-                    using (MySqlConnection con = new MySqlConnection(myAppConnectionString))
-                    {
-                        con.Open();
-                        MySqlCommand command = new MySqlCommand(Query, con);
-                        List<string> MysqlRows = new List<string>();
-                        using (MySqlDataReader reader = command.ExecuteReader())
-                        {
-                            if (reader.HasRows)
-                            {
-
-                                while (reader.Read())
-                                {
-                                    MysqlRows.Add(reader["ID"] + "^" + reader["SUPPORTER_ID"] + "^" + reader["SUPPORTER_NAME"] + "^" + reader["CHILD_NAME"] + "^" + reader["NEEDKEY"] + "^" + reader["CHILD_IMAGE"] + "^" + reader["MESSAGE_TITLE"] + "^" + reader["MESSAGE_BODY"] + "^" + reader["MESSAGE_TYPE"] + "^" + reader["DESTINATION"] + "^" + reader["POST_TITLE"] + "^" + reader["SEND_NOTIFICATION"] + "^" + reader["HERO"] + "^" + reader["STATUS"] + "^" + reader["DISPLAY_ORDER"] + "^" + reader["IS_READ"] + "^" + reader["CREATED_ON"] + "^" + reader["UPDATED_ON"] + "^" + reader["OA_ID"] + "^" + reader["OA_BRAND_ID"] + "^" + reader["USER_ID"] + "^" + reader["CREATED_BY"] + "^" + reader["UPDATED_BY"] + "^" + reader["IS_DELETED"]);
-                                }
-                                reader.Close();
-                                con.Close();
-                                count = MysqlRows.Count();
-                                appLogger.Info("Updating " + pageSize + " Notifications records...");
-                                StringBuilder sCommand = new StringBuilder("INSERT INTO `Notification`(`ID`,`SUPPORTER_ID`, `SUPPORTER_NAME`, `CHILD_NAME`, `NEEDKEY`, `CHILD_IMAGE`, `MESSAGE_TITLE`, `MESSAGE_BODY`, `MESSAGE_TYPE`, `DESTINATION`, `POST_TITLE`, `SEND_NOTIFICATION`, `HERO`, `STATUS`, `DISPLAY_ORDER`, `IS_READ`, `CREATED_ON`, `UPDATED_ON`, `OA_ID`, `OA_BRAND_ID`, `USER_ID`, `CREATED_BY`, `UPDATED_BY`, `IS_DELETED`) VALUES ");
-                                using (MySqlConnection mConnection = new MySqlConnection(myDWH_LandingConnectionString))
-                                {
-                                    List<string> Rows = new List<string>();
-                                    foreach (string row in MysqlRows)
-                                    {
-                                        string Single_row = row.Replace(",", "");
-                                        List<string> values = Single_row.Replace("'", "").Split('^').ToList();
-                                        string ID = string.IsNullOrEmpty(values[0]) ? "null" : values[0];
-                                        string SUPPORTER_ID = string.IsNullOrEmpty(values[1]) ? "null" : values[1];
-                                        string SUPPORTER_NAME = string.IsNullOrEmpty(values[2]) ? "null" : values[2];
-                                        string CHILD_NAME = string.IsNullOrEmpty(values[3]) ? "null" : values[3];
-                                        string NEEDKEY = string.IsNullOrEmpty(values[4]) ? "null" : values[4];
-                                        string CHILD_IMAGE = string.IsNullOrEmpty(values[5]) ? "null" : values[5];
-                                        string MESSAGE_TITLE = string.IsNullOrEmpty(values[6]) ? "null" : values[6];
-                                        string MESSAGE_BODY = string.IsNullOrEmpty(values[7]) ? "null" : values[7].Replace("'", "");
-                                        string MESSAGE_TYPE = string.IsNullOrEmpty(values[8]) ? "null" : values[8];
-                                        string DESTINATION = string.IsNullOrEmpty(values[9]) ? "null" : values[9];
-                                        string POST_TITLE = string.IsNullOrEmpty(values[10]) ? "null" : values[10];
-                                        string SEND_NOTIFICATION = string.IsNullOrEmpty(values[11]) ? "null" : values[11];
-                                        string HERO = string.IsNullOrEmpty(values[12]) ? "null" : values[12];
-                                        string STATUS = string.IsNullOrEmpty(values[13]) ? "null" : values[13];
-                                        string DISPLAY_ORDER = string.IsNullOrEmpty(values[14]) ? "null" : values[14];
-                                        string IS_READ = string.IsNullOrEmpty(values[15]) ? "null" : values[15];
-                                        string CREATED_ON = string.IsNullOrEmpty(values[16]) ? "null" : values[16];
-                                        string UPDATED_ON = string.IsNullOrEmpty(values[17]) ? "null" : values[17];
-                                        string OA_ID = string.IsNullOrEmpty(values[18]) ? "null" : values[18];
-                                        string OA_BRAND_ID = string.IsNullOrEmpty(values[19]) ? "null" : values[19];
-                                        string USER_ID = string.IsNullOrEmpty(values[20]) ? "null" : values[20];
-                                        string CREATED_BY = string.IsNullOrEmpty(values[21]) ? "null" : values[21];
-                                        string UPDATED_BY = string.IsNullOrEmpty(values[22]) ? "null" : values[22];
-                                        string IS_DELETED = string.IsNullOrEmpty(values[23]) ? "null" : values[23];
-                                        if (!string.IsNullOrWhiteSpace(values[17]))
-                                        {
-                                            if (values[17].Contains("/"))
-                                            {
-                                                DateTime dt = DateTime.ParseExact(values[17], "dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-                                                UPDATED_ON = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                                            }
-                                            else
-                                            {
-                                                UPDATED_ON = values[17];
-                                            }
-                                        }
-                                        else
-                                        {
-                                            UPDATED_ON = "null";
-                                        }
-                                        if (!string.IsNullOrWhiteSpace(values[16]))
-                                        {
-                                            if (values[16].Contains("/"))
-                                            {
-                                                DateTime dt = DateTime.ParseExact(values[16], "dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-                                                CREATED_ON = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                                            }
-                                            else
-                                            {
-                                                CREATED_ON = values[16];
-                                            }
-                                        }
-                                        else
-                                        {
-                                            CREATED_ON = "null";
-                                        }
-                                        string singleRow = ID + "," + SUPPORTER_ID + ",'" + SUPPORTER_NAME + "','" + CHILD_NAME + "','" + NEEDKEY + "','" + CHILD_IMAGE + "','" + MESSAGE_TITLE + "','" + MESSAGE_BODY + "','" + MESSAGE_TYPE + "','" + DESTINATION + "','" + POST_TITLE + "','" + SEND_NOTIFICATION + "','" + HERO + "','" + STATUS + "','" + DISPLAY_ORDER + "','" + IS_READ + "','" + CREATED_ON + "','" + UPDATED_ON + "'," + OA_ID + "," + OA_BRAND_ID + "," + USER_ID + "," + CREATED_BY + "," + UPDATED_BY + "," + IS_DELETED;
-                                        Rows.Add(string.Format("({0})", singleRow));
-                                    }
-                                    sCommand.Append(string.Join(",", Rows));
-                                    sCommand.Replace("'null'", "null");
-                                    sCommand.Append(";");
-                                    mConnection.Open();
-                                    using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), mConnection))
-                                    {
-                                        myCmd.CommandType = CommandType.Text;
-                                        myCmd.ExecuteNonQuery();
-                                    }
-                                    mConnection.Close();
-                                    appLogger.Info(pageSize + " notification records updated successfully");
-                                }
-
-                                // For next set of data
-                                Total += count;
-                                //startLimit += pageSize;
-
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                    }
-                } while (true);
-            }
-            catch (Exception e)
-            {
-                appLogger.Error("Error in notification -  StartLimit : " + startLimit);
-                appLogger.Error(e.Message);
-                appLogger.Error(e.InnerException);
-                appLogger.Error(e.StackTrace);
-            }
-            appLogger.Info("Notification sync process ended...");
-            return Total;
-        }
-        public void SyncAllNotification()
-        {
-            int count = 0;
-            string Query = "SELECT * FROM `notifications`";
-            //string orderBy = " ORDER BY ID ASC";
-            //string limit = " LIMIT " + startLimit + ", " + pageSize;
-            //Query += orderBy + limit;
-            using (MySqlConnection con = new MySqlConnection(myAppConnectionString))
-            {
-                con.Open();
-                MySqlCommand command = new MySqlCommand(Query, con);
-                List<string> MysqlRows = new List<string>();
-                using (MySqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.HasRows)
-                    {
-
-                        while (reader.Read())
-                        {
-                            MysqlRows.Add(reader["ID"] + "^" + reader["SUPPORTER_ID"] + "^" + reader["SUPPORTER_NAME"] + "^" + reader["CHILD_NAME"] + "^" + reader["NEEDKEY"] + "^" + reader["CHILD_IMAGE"] + "^" + reader["MESSAGE_TITLE"] + "^" + reader["MESSAGE_BODY"] + "^" + reader["MESSAGE_TYPE"] + "^" + reader["DESTINATION"] + "^" + reader["POST_TITLE"] + "^" + reader["SEND_NOTIFICATION"] + "^" + reader["HERO"] + "^" + reader["STATUS"] + "^" + reader["DISPLAY_ORDER"] + "^" + reader["IS_READ"] + "^" + reader["CREATED_ON"] + "^" + reader["UPDATED_ON"] + "^" + reader["OA_ID"] + "^" + reader["OA_BRAND_ID"] + "^" + reader["USER_ID"] + "^" + reader["CREATED_BY"] + "^" + reader["UPDATED_BY"] + "^" + reader["IS_DELETED"]);
-                        }
-                        reader.Close();
-                        con.Close();
-                        count = MysqlRows.Count();
-                        appLogger.Info("Updating " + count + " Notifications records...");
-                        StringBuilder sCommand = new StringBuilder("INSERT INTO `Notification_New`(`ID`,`SUPPORTER_ID`, `SUPPORTER_NAME`, `CHILD_NAME`, `NEEDKEY`, `CHILD_IMAGE`, `MESSAGE_TITLE`, `MESSAGE_BODY`, `MESSAGE_TYPE`, `DESTINATION`, `POST_TITLE`, `SEND_NOTIFICATION`, `HERO`, `STATUS`, `DISPLAY_ORDER`, `IS_READ`, `CREATED_ON`, `UPDATED_ON`, `OA_ID`, `OA_BRAND_ID`, `USER_ID`, `CREATED_BY`, `UPDATED_BY`, `IS_DELETED`) VALUES ");
-                        using (MySqlConnection mConnection = new MySqlConnection(myDWH_LandingConnectionString))
-                        {
-                            List<string> Rows = new List<string>();
-                            foreach (string row in MysqlRows)
-                            {
-                                string Single_row = row.Replace(",", "");
-                                List<string> values = Single_row.Replace("'", "").Split('^').ToList();
-                                string ID = string.IsNullOrEmpty(values[0]) ? "null" : values[0];
-                                string SUPPORTER_ID = string.IsNullOrEmpty(values[1]) ? "null" : values[1];
-                                string SUPPORTER_NAME = string.IsNullOrEmpty(values[2]) ? "null" : values[2];
-                                string CHILD_NAME = string.IsNullOrEmpty(values[3]) ? "null" : values[3];
-                                string NEEDKEY = string.IsNullOrEmpty(values[4]) ? "null" : values[4];
-                                string CHILD_IMAGE = string.IsNullOrEmpty(values[5]) ? "null" : values[5];
-                                string MESSAGE_TITLE = string.IsNullOrEmpty(values[6]) ? "null" : values[6];
-                                string MESSAGE_BODY = string.IsNullOrEmpty(values[7]) ? "null" : values[7].Replace("'", "");
-                                string MESSAGE_TYPE = string.IsNullOrEmpty(values[8]) ? "null" : values[8];
-                                string DESTINATION = string.IsNullOrEmpty(values[9]) ? "null" : values[9];
-                                string POST_TITLE = string.IsNullOrEmpty(values[10]) ? "null" : values[10];
-                                string SEND_NOTIFICATION = string.IsNullOrEmpty(values[11]) ? "null" : values[11];
-                                string HERO = string.IsNullOrEmpty(values[12]) ? "null" : values[12];
-                                string STATUS = string.IsNullOrEmpty(values[13]) ? "null" : values[13];
-                                string DISPLAY_ORDER = string.IsNullOrEmpty(values[14]) ? "null" : values[14];
-                                string IS_READ = string.IsNullOrEmpty(values[15]) ? "null" : values[15];
-                                string CREATED_ON = string.IsNullOrEmpty(values[16]) ? "null" : values[16];
-                                string UPDATED_ON = string.IsNullOrEmpty(values[17]) ? "null" : values[17];
-                                string OA_ID = string.IsNullOrEmpty(values[18]) ? "null" : values[18];
-                                string OA_BRAND_ID = string.IsNullOrEmpty(values[19]) ? "null" : values[19];
-                                string USER_ID = string.IsNullOrEmpty(values[20]) ? "null" : values[20];
-                                string CREATED_BY = string.IsNullOrEmpty(values[21]) ? "null" : values[21];
-                                string UPDATED_BY = string.IsNullOrEmpty(values[22]) ? "null" : values[22];
-                                string IS_DELETED = string.IsNullOrEmpty(values[23]) ? "null" : values[23];
-                                if (!string.IsNullOrWhiteSpace(values[17]))
-                                {
-                                    if (values[17].Contains("/"))
-                                    {
-                                        DateTime dt = DateTime.ParseExact(values[17], "dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-                                        UPDATED_ON = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                                    }
-                                    else
-                                    {
-                                        UPDATED_ON = values[17];
-                                    }
-                                }
-                                else
-                                {
-                                    UPDATED_ON = "null";
-                                }
-                                if (!string.IsNullOrWhiteSpace(values[16]))
-                                {
-                                    if (values[16].Contains("/"))
-                                    {
-                                        DateTime dt = DateTime.ParseExact(values[16], "dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-                                        CREATED_ON = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                                    }
-                                    else
-                                    {
-                                        CREATED_ON = values[16];
-                                    }
-                                }
-                                else
-                                {
-                                    CREATED_ON = "null";
-                                }
-                                string singleRow = ID + "," + SUPPORTER_ID + ",'" + SUPPORTER_NAME + "','" + CHILD_NAME + "','" + NEEDKEY + "','" + CHILD_IMAGE + "','" + MESSAGE_TITLE + "','" + MESSAGE_BODY + "','" + MESSAGE_TYPE + "','" + DESTINATION + "','" + POST_TITLE + "','" + SEND_NOTIFICATION + "','" + HERO + "','" + STATUS + "','" + DISPLAY_ORDER + "','" + IS_READ + "','" + CREATED_ON + "','" + UPDATED_ON + "'," + OA_ID + "," + OA_BRAND_ID + "," + USER_ID + "," + CREATED_BY + "," + UPDATED_BY + "," + IS_DELETED;
-                                Rows.Add(string.Format("({0})", singleRow));
-                            }
-                            sCommand.Append(string.Join(",", Rows));
-                            sCommand.Replace("'null'", "null");
-                            sCommand.Append(";");
-                            mConnection.Open();
-                            using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), mConnection))
-                            {
-                                myCmd.CommandType = CommandType.Text;
-                                myCmd.ExecuteNonQuery();
-                            }
-                            mConnection.Close();
-                            appLogger.Info(count + " notification records updated successfully");
-                        }
-                    }
-                }
-            }
-        }
-
-
-        public void SyncIncidentFromDWH()
-        {
-            int pageSize = 2000;
-            int count = 0;
-            long startLimit = 0;
-            int Total = 0;
-            try
-            {
-                do
-                {
-                    string Query = "SELECT * FROM DWH.SupporterEnquiries";
-                    string orderBy = " ORDER BY DWH.SupporterEnquiries.IncidentID ASC";
-                    string limit = " LIMIT " + startLimit + ", " + pageSize;
-                    Query += orderBy + limit;
-                    using (MySqlConnection con = new MySqlConnection(myConnectionString))
-                    {
-                        con.Open();
-                        MySqlCommand command = new MySqlCommand(Query, con);
-                        List<string> MysqlRows = new List<string>();
-                        using (MySqlDataReader reader = command.ExecuteReader())
-                        {
-                            if (reader.HasRows)
-                            {
-
-                                while (reader.Read())
-                                {
-                                    MysqlRows.Add(reader["IncidentID"] + "^" + reader["Queue"] + "^" + reader["Mailbox"] + "^" + reader["Category"] + "^" + reader["Disposition"] + "^" + reader["ContactAttemptsMade"] + "^" + reader["FeedbackRating"] + "^" + reader["CreatedTime"] + "^" + reader["UpdatedTime"] + "^" + reader["ClosedTime"] + "^" + reader["CreatedByAccount"] + "^" + reader["CampaignFormType"] + "^" + reader["ResolutionDueDate"] + "^" + reader["MinistryAspect"] + "^" + reader["sourcechannel"] + "^" + reader["source"] + "^" + reader["source_lvl1"] + "^" + reader["source_lvl2"] + "^" + reader["whitemail"] + "^" + reader["PrimaryContact"] + "^" + reader["AssignedTo"] + "^" + reader["Status_id"] + "^" + reader["Status"] + "^" + reader["InternalSubject"]);
-                                }
-                                reader.Close();
-                                con.Close();
-                                appLogger.Info("Updating " + pageSize + " Incident records...");
-                                StringBuilder sCommand = new StringBuilder("INSERT INTO `SupporterEnquiries`(`IncidentID`, `Queue`, `Mailbox`, `Category`, `Disposition`, `ContactAttemptsMade`, `FeedbackRating`, `CreatedTime`, `UpdatedTime`, `ClosedTime`, `CreatedByAccount`, `CampaignFormType`, `ResolutionDueDate`, `MinistryAspect`, `sourcechannel`, `source`, `source_lvl1`, `source_lvl2`, `whitemail`, `PrimaryContact`, `AssignedTo`, `Status_id`, `Status`, `InternalSubject`) VALUES ");
-                                using (MySqlConnection mConnection = new MySqlConnection(myDWH_LandingConnectionString))
-                                {
-                                    List<string> Rows = new List<string>();
-                                    foreach (string row in MysqlRows)
-                                    {
-                                        List<string> values = row.Split('^').ToList();
-                                        string IncidentID = string.IsNullOrEmpty(values[0]) ? "0" : values[0];
-                                        string Queue = string.IsNullOrEmpty(values[1]) ? "null" : values[1];
-                                        string Mailbox = string.IsNullOrEmpty(values[2]) ? "null" : values[2];
-                                        string Category = string.IsNullOrEmpty(values[3]) ? "null" : values[3];
-                                        string Disposition = string.IsNullOrEmpty(values[4]) ? "null" : values[4];
-                                        string ContactAttemptsMade = string.IsNullOrEmpty(values[5]) ? "null" : values[5];
-                                        string FeedbackRating = string.IsNullOrEmpty(values[6]) ? "null" : values[6];
-                                        string CreatedTime = "";//7
-                                        string UpdatedTime = "";//8
-                                        string ClosedTime = "";//9
-                                        string CreatedByAccount = string.IsNullOrEmpty(values[10]) ? "null" : values[10];
-                                        string CampaignFormType = string.IsNullOrEmpty(values[11]) ? "null" : values[11];
-                                        string ResolutionDueDate = !string.IsNullOrEmpty(values[12]) ? GetDateFromDateTime(values[12]) : "null";
-                                        string MinistryAspect = string.IsNullOrEmpty(values[13]) ? "null" : values[13];
-                                        string sourcechannel = string.IsNullOrEmpty(values[14]) ? "null" : values[14];
-                                        string source = string.IsNullOrEmpty(values[15]) ? "null" : values[15];
-                                        string source_lvl1 = string.IsNullOrEmpty(values[16]) ? "null" : values[16];
-                                        string source_lvl2 = string.IsNullOrEmpty(values[17]) ? "null" : values[17];
-                                        string whitemail = string.IsNullOrEmpty(values[18]) ? "null" : values[18];
-                                        string PrimaryContact = string.IsNullOrEmpty(values[19]) ? "null" : values[19];
-                                        string AssignedTo = string.IsNullOrEmpty(values[20]) ? "null" : values[20];
-                                        string Status_id = string.IsNullOrEmpty(values[21]) ? "null" : values[21];
-                                        string Status = string.IsNullOrEmpty(values[22]) ? "null" : values[22];
-                                        string InternalSubject = string.IsNullOrEmpty(values[23]) ? "null" : values[23].Replace(",", "");
-
-                                        if (!string.IsNullOrEmpty(values[7]))
-                                        {
-                                            DateTime dt = DateTime.ParseExact(values[7], "yyyy-MM-ddTHH:mm:ss.fffZ", System.Globalization.CultureInfo.InvariantCulture);
-                                            CreatedTime = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                                        }
-                                        else
-                                        {
-                                            CreatedTime = "null";
-                                        }
-
-                                        if (!string.IsNullOrEmpty(values[8]))
-                                        {
-                                            DateTime dt = DateTime.ParseExact(values[8], "yyyy-MM-ddTHH:mm:ss.fffZ", System.Globalization.CultureInfo.InvariantCulture);
-                                            UpdatedTime = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                                        }
-                                        else
-                                        {
-                                            UpdatedTime = "null";
-                                        }
-                                        if (!string.IsNullOrEmpty(values[9]))
-                                        {
-                                            DateTime dt = DateTime.ParseExact(values[9], "yyyy-MM-ddTHH:mm:ss.fffZ", System.Globalization.CultureInfo.InvariantCulture);
-                                            ClosedTime = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                                        }
-                                        else
-                                        {
-                                            ClosedTime = "null";
-                                        }
-                                        string singleRow = IncidentID + "," + Queue + "," + Mailbox + "," + Category + "," + Disposition + "," + ContactAttemptsMade + "," + FeedbackRating + ",'" + CreatedTime + "','" + UpdatedTime + "','" + ClosedTime + "'," + CreatedByAccount + "," + CampaignFormType + ",'" + ResolutionDueDate + "'," + MinistryAspect + "," + sourcechannel + ",'" + source + "'," + source_lvl1 + "," + source_lvl2 + "," + whitemail + "," + PrimaryContact + "," + AssignedTo + "," + Status_id + ",'" + Status + "','" + InternalSubject.Replace("'", "") + "'";
-                                        Rows.Add(string.Format("({0})", singleRow));
-
-                                    }
-                                    sCommand.Append(string.Join(",", Rows));
-                                    List<string> UpdatePart = new List<string>();
-                                    sCommand.Replace("'null'", "null");
-                                    sCommand.Append(";");
-                                    sCommand.Replace("''s", "s");
-                                    mConnection.Open();
-                                    using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), mConnection))
-                                    {
-                                        myCmd.CommandType = CommandType.Text;
-                                        myCmd.ExecuteNonQuery();
-                                    }
-                                    appLogger.Info(pageSize + " Incident records updated successfully Between ");
-                                }
-
-                            }
-                            else
-                            {
-                                break;
-                            }
-                            Total += count;
-                            startLimit += pageSize;
-                        }
-                    }
-                } while (true);
-            }
-            catch (Exception e)
-            {
-                appLogger.Error("Error in Incident -  StartLimit : " + startLimit);
-                appLogger.Error(e.Message);
-                appLogger.Error(e.InnerException);
-                appLogger.Error(e.StackTrace);
-            }
-
-        }
-        public void SyncThreadsFromDWH()
-        {
-            int pageSize = 4000;
-            int count = 0;
-            long startLimit = 1344000;
-            int Total = 0;
-            try
-            {
-                do
-                {
-                    string Query = "SELECT * FROM DWH.Threads";
-                    string orderBy = " ORDER BY ThreadID ASC";
-                    string limit = " LIMIT " + startLimit + ", " + pageSize;
-                    Query += orderBy + limit;
-                    using (MySqlConnection con = new MySqlConnection(myConnectionString))
-                    {
-                        con.Open();
-                        MySqlCommand command = new MySqlCommand(Query, con);
-                        List<string> MysqlRows = new List<string>();
-                        using (MySqlDataReader reader = command.ExecuteReader())
-                        {
-                            if (reader.HasRows)
-                            {
-
-                                while (reader.Read())
-                                {
-                                    MysqlRows.Add(reader["Account"] + "^" + reader["Channel"] + "^" + reader["Contact"] + "^" + reader["CreatedTime"] + "^" + reader["DisplayOrder"] + "^" + reader["EntryType"] + "^" + reader["ThreadID"] + "^" + reader["IncidentID"]);
-                                }
-                                reader.Close();
-                                con.Close();
-                                appLogger.Info("Updating " + pageSize + " Threads records...");
-                                StringBuilder sCommand = new StringBuilder("INSERT INTO `Threads`(Account,Channel,Contact,CreatedTime,DisplayOrder,EntryType,ThreadID,IncidentID) VALUES ");
-                                using (MySqlConnection mConnection = new MySqlConnection(myDWH_LandingConnectionString))
-                                {
-                                    List<string> Rows = new List<string>();
-                                    foreach (string row in MysqlRows)
-                                    {
-                                        List<string> values = row.Split('^').ToList();
-                                        string Account = string.IsNullOrWhiteSpace(values[0]) ? "null" : values[0];
-                                        string Channel = string.IsNullOrWhiteSpace(values[1]) ? "null" : values[1];
-                                        string Contact = string.IsNullOrWhiteSpace(values[2]) ? "null" : values[2];
-                                        string CreatedTime = "";
-                                        string DisplayOrder = string.IsNullOrWhiteSpace(values[4]) ? "null" : values[4];
-                                        string EntryType = string.IsNullOrWhiteSpace(values[5]) ? "null" : values[5];
-                                        string ThreadID = string.IsNullOrWhiteSpace(values[6]) ? "0" : values[6];
-                                        string IncidentID = string.IsNullOrWhiteSpace(values[7]) ? "0" : values[7];
-                                        if (!string.IsNullOrWhiteSpace(values[3]))
-                                        {
-                                            if (values[3].Contains("/"))
-                                            {
-                                                DateTime dt = DateTime.ParseExact(values[3], "dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-                                                CreatedTime = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                                            }
-                                            else if (values[3].Contains("Z"))
-                                            {
-                                                DateTime dt = DateTime.ParseExact(values[3], "yyyy-MM-ddTHH:mm:ss.fffZ", System.Globalization.CultureInfo.InvariantCulture);
-                                                CreatedTime = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                                            }
-                                            else
-                                            {
-                                                CreatedTime = values[3];
-                                            }
-                                        }
-                                        else
-                                        {
-                                            CreatedTime = "null";
-                                        }
-                                        string singleRow = Account + "," + Channel + "," + Contact + ",'" + CreatedTime + "'," + DisplayOrder + "," + EntryType + "," + ThreadID + "," + IncidentID;
-                                        Rows.Add(string.Format("({0})", singleRow));
-                                    }
-                                    sCommand.Append(string.Join(",", Rows));
-                                    sCommand.Replace("'null'", "null");
-                                    sCommand.Append(";");
-                                    mConnection.Open();
-                                    using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), mConnection))
-                                    {
-                                        myCmd.CommandType = CommandType.Text;
-                                        myCmd.ExecuteNonQuery();
-                                    }
-                                    mConnection.Close();
-                                    appLogger.Info(pageSize + " Threads records updated successfully");
-                                }
-
-                                // For next set of data
-                                Total += count;
-                                startLimit += pageSize;
-
-                            }
-                            else
-                            {
-                                break;
-                            }
-                            Total += count;
-                            startLimit += pageSize;
-                        }
-                    }
-                } while (true);
-            }
-            catch (Exception e)
-            {
-                appLogger.Error("Error in Threads -  StartLimit : " + startLimit);
-
-                appLogger.Error(e.Message);
-                appLogger.Error(e.InnerException);
-                appLogger.Error(e.StackTrace);
-            }
-
-        }
-        public void SyncNotoficationFromDWH()
-        {
-            int pageSize = 4000;
-            int count = 0;
-            long startLimit = 0;
-            int Total = 0;
-            try
-            {
-                do
-                {
-                    string Query = "SELECT * FROM DWH.Notifications";
-                    string orderBy = " ORDER BY ID ASC";
-                    string limit = " LIMIT " + startLimit + ", " + pageSize;
-                    Query += orderBy + limit;
-                    using (MySqlConnection con = new MySqlConnection(myConnectionString))
-                    {
-                        con.Open();
-                        MySqlCommand command = new MySqlCommand(Query, con);
-                        List<string> MysqlRows = new List<string>();
-                        using (MySqlDataReader reader = command.ExecuteReader())
-                        {
-                            if (reader.HasRows)
-                            {
-
-                                while (reader.Read())
-                                {
-                                    MysqlRows.Add(reader["ID"] + "^" + reader["SUPPORTER_ID"] + "^" + reader["SUPPORTER_NAME"] + "^" + reader["CHILD_NAME"] + "^" + reader["NEEDKEY"] + "^" + reader["CHILD_IMAGE"] + "^" + reader["MESSAGE_TITLE"] + "^" + reader["MESSAGE_BODY"] + "^" + reader["MESSAGE_TYPE"] + "^" + reader["DESTINATION"] + "^" + reader["POST_TITLE "] + "^" + reader["SEND_NOTIFICATION "] + "^" + reader["HERO"] + "^" + reader["STATUS"] + "^" + reader["DISPLAY_ORDER"] + "^" + reader["IS_READ"] + "^" + reader["CREATED_ON"] + "^" + reader["UPDATED_ON"] + "^" + reader["OA_ID"] + "^" + reader["OA_BRAND_ID"] + "^" + reader["USER_ID"] + "^" + reader["CREATED_BY"] + "^" + reader["UPDATED_BY"] + "^" + reader["IS_DELETED "]);
-                                }
-                                reader.Close();
-                                con.Close();
-                                appLogger.Info("Updating " + pageSize + " Notifications records...");
-                                StringBuilder sCommand = new StringBuilder("INSERT INTO `Notifications`(`SUPPORTER_ID`, `SUPPORTER_NAME`, `CHILD_NAME`, `NEEDKEY`, `CHILD_IMAGE`, `MESSAGE_TITLE`, `MESSAGE_BODY`, `MESSAGE_TYPE`, `DESTINATION`, `POST_TITLE`, `SEND_NOTIFICATION`, `HERO`, `STATUS`, `DISPLAY_ORDER`, `IS_READ`, `CREATED_ON`, `UPDATED_ON`, `OA_ID`, `OA_BRAND_ID`, `USER_ID`, `CREATED_BY`, `UPDATED_BY`, `IS_DELETED`) VALUES ");
-                                using (MySqlConnection mConnection = new MySqlConnection(myDWH_LandingConnectionString))
-                                {
-                                    List<string> Rows = new List<string>();
-                                    foreach (string row in MysqlRows)
-                                    {
-                                        List<string> values = row.Split('^').ToList();
-                                        string ID = string.IsNullOrEmpty(values[0]) ? "null" : values[0];
-                                        string SUPPORTER_ID = string.IsNullOrEmpty(values[1]) ? "null" : values[1];
-                                        string SUPPORTER_NAME = string.IsNullOrEmpty(values[2]) ? "null" : values[2];
-                                        string CHILD_NAME = string.IsNullOrEmpty(values[3]) ? "null" : values[3];
-                                        string NEEDKEY = string.IsNullOrEmpty(values[4]) ? "null" : values[4];
-                                        string CHILD_IMAGE = string.IsNullOrEmpty(values[5]) ? "null" : values[5];
-                                        string MESSAGE_TITLE = string.IsNullOrEmpty(values[6]) ? "null" : values[6];
-                                        string MESSAGE_BODY = string.IsNullOrEmpty(values[7]) ? "null" : values[7];
-                                        string MESSAGE_TYPE = string.IsNullOrEmpty(values[8]) ? "null" : values[8];
-                                        string DESTINATION = string.IsNullOrEmpty(values[9]) ? "null" : values[9];
-                                        string POST_TITLE = string.IsNullOrEmpty(values[10]) ? "null" : values[10];
-                                        string SEND_NOTIFICATION = string.IsNullOrEmpty(values[11]) ? "null" : values[11];
-                                        string HERO = string.IsNullOrEmpty(values[12]) ? "null" : values[12];
-                                        string STATUS = string.IsNullOrEmpty(values[13]) ? "null" : values[13];
-                                        string DISPLAY_ORDER = string.IsNullOrEmpty(values[14]) ? "null" : values[14];
-                                        string IS_READ = string.IsNullOrEmpty(values[15]) ? "null" : values[15];
-                                        string CREATED_ON = string.IsNullOrEmpty(values[16]) ? "null" : values[16];
-                                        string UPDATED_ON = string.IsNullOrEmpty(values[17]) ? "null" : values[17];
-                                        string OA_ID = string.IsNullOrEmpty(values[18]) ? "null" : values[18];
-                                        string OA_BRAND_ID = string.IsNullOrEmpty(values[19]) ? "null" : values[19];
-                                        string USER_ID = string.IsNullOrEmpty(values[20]) ? "null" : values[20];
-                                        string CREATED_BY = string.IsNullOrEmpty(values[21]) ? "null" : values[21];
-                                        string UPDATED_BY = string.IsNullOrEmpty(values[22]) ? "null" : values[22];
-                                        string IS_DELETED = string.IsNullOrEmpty(values[23]) ? "null" : values[23];
-                                        if (!string.IsNullOrWhiteSpace(values[17]))
-                                        {
-                                            if (values[17].Contains("/"))
-                                            {
-                                                DateTime dt = DateTime.ParseExact(values[17], "dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-                                                UPDATED_ON = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                                            }
-                                            else
-                                            {
-                                                UPDATED_ON = values[17];
-                                            }
-                                        }
-                                        else
-                                        {
-                                            UPDATED_ON = "null";
-                                        }
-                                        if (!string.IsNullOrWhiteSpace(values[16]))
-                                        {
-                                            if (values[16].Contains("/"))
-                                            {
-                                                DateTime dt = DateTime.ParseExact(values[16], "dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-                                                CREATED_ON = dt.ToString("yyyy-MM-dd HH:mm:ss");
-                                            }
-                                            else
-                                            {
-                                                CREATED_ON = values[16];
-                                            }
-                                        }
-                                        else
-                                        {
-                                            CREATED_ON = "null";
-                                        }
-                                        string singleRow = ID + "," + SUPPORTER_ID + ",'" + SUPPORTER_NAME + "','" + CHILD_NAME + "','" + NEEDKEY + "','" + CHILD_IMAGE + "','" + MESSAGE_TITLE + "','" + MESSAGE_BODY + "','" + MESSAGE_TYPE + "','" + DESTINATION + "','" + POST_TITLE + "','" + SEND_NOTIFICATION + "','" + HERO + "','" + STATUS + "','" + DISPLAY_ORDER + "','" + IS_READ + "','" + CREATED_ON + "','" + UPDATED_ON + "'," + OA_ID + "," + OA_BRAND_ID + "," + USER_ID + "," + CREATED_BY + "," + UPDATED_BY + "," + IS_DELETED;
-                                        Rows.Add(string.Format("({0})", singleRow));
-                                    }
-                                    sCommand.Append(string.Join(",", Rows));
-                                    sCommand.Replace("'null'", "null");
-                                    sCommand.Append(";");
-                                    mConnection.Open();
-                                    using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), mConnection))
-                                    {
-                                        myCmd.CommandType = CommandType.Text;
-                                        myCmd.ExecuteNonQuery();
-                                    }
-                                    mConnection.Close();
-                                    appLogger.Info(pageSize + " Threads records updated successfully");
-                                }
-
-                                // For next set of data
-                                Total += count;
-                                startLimit += pageSize;
-
-                            }
-                            else
-                            {
-                                break;
-                            }
-                            Total += count;
-                            startLimit += pageSize;
-                        }
-                    }
-                } while (true);
-            }
-            catch (Exception e)
-            {
-                appLogger.Error("Error in Threads -  StartLimit : " + startLimit);
-
-                appLogger.Error(e.Message);
-                appLogger.Error(e.InnerException);
-                appLogger.Error(e.StackTrace);
-            }
-
-        }//issue
         public string GetDateFromDateTime(string Date)
         {
             DateTime dt = DateTime.Parse(Date);
             string actualDate = dt.ToString("yyyy-MM-dd");
             return actualDate;
         }
-
         public string GetStringInDateTimeFormat(string Date)
         {
             DateTime dt = DateTime.Parse(Date);
@@ -9393,41 +8533,6 @@ namespace DWHSync
                 appLogger.Error(e.InnerException);
             }
             return OrgList;
-        }
-        public List<OrganizationData> GetDBOrgData(List<OrganizationData> RNOrgList)
-        {
-            //string OrgIDs = "";
-            List<string> OrgIDs = new List<string>();
-            foreach (OrganizationData data in RNOrgList)
-            {
-                OrgIDs.Add(data.OrgID);
-            }
-            List<OrganizationData> DBOrgList = new List<OrganizationData>();
-            try
-            {
-                using (MySqlConnection conn = new MySqlConnection(myDWH_LandingConnectionString))
-                {
-                    conn.Open();
-                    string Query = "SELECT OrganisationID,RelationshipStatus FROM Organisation WHERE OrganisationID IN (" + string.Join(",", OrgIDs) + ")";
-                    MySqlCommand mycmd = new MySqlCommand(Query, conn);
-                    MySqlDataReader dataReader;
-                    dataReader = mycmd.ExecuteReader();
-                    while (dataReader.Read())
-                    {
-                        OrganizationData DBOrgObj = new OrganizationData();
-                        DBOrgObj.OrgID = dataReader["OrganisationID"].ToString();
-                        DBOrgObj.OrgRelationshipStatus = dataReader["RelationshipStatus"] != null ? dataReader["RelationshipStatus"].ToString() : null;
-                        DBOrgList.Add(DBOrgObj);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                appLogger.Error("Error in GetDBOrgData: " + e.Message);
-                appLogger.Error(e.StackTrace);
-                appLogger.Error(e.InnerException);
-            }
-            return DBOrgList;
         }
         public int SyncOrgStatusOperation(string fromTime)
         {
@@ -9554,61 +8659,6 @@ namespace DWHSync
             return Col[8];
         }
 
-        public EventFieldsModel FetchEventsOtherFields(string eventID)
-        {
-            ClientInfoHeader info = new ClientInfoHeader();
-            info.AppID = "Get opportunity Data";
-            string Query = "SELECT opportunity FROM opportunity where opportunity.ID = " + eventID + "";
-            List<EventFieldsModel> EventList = new List<EventFieldsModel>();
-            EventFieldsModel EventModel = new EventFieldsModel();
-            Opportunity contactOppo = new Opportunity();
-            contactOppo.PrimaryContact = new OpportunityContact();
-            contactOppo.StageWithStrategy = new StageWithStrategy();
-            RNObject[] objectTemplates = new RNObject[] { contactOppo };
-            EventModel.PrimaryContact = "";
-            EventModel.StageWithStrategy = "";
-
-            try
-            {
-                QueryResultData[] queryObjects = null;
-                // head= rightNowSyncPortClient.QueryObjects(info,api, Query, objectTemplates, 10000,out queryObjects);
-                RNObject[] rnObjects = queryObjects[0].RNObjectsResult;
-                if (rnObjects != null && rnObjects.Length > 0)
-                {
-                    foreach (QueryResultData queryResultData in queryObjects)
-                    {
-                        foreach (RNObject data in queryResultData.RNObjectsResult)
-                        {
-
-                            Opportunity OpportunityTemp = (Opportunity)data;
-
-                            if (OpportunityTemp.PrimaryContact != null)
-                            {
-                                if (OpportunityTemp.PrimaryContact.Contact != null)
-                                {
-                                    EventModel.PrimaryContact = OpportunityTemp.PrimaryContact.Contact.ID.id.ToString();
-                                }
-                            }
-                            if (OpportunityTemp.StageWithStrategy != null)
-                            {
-                                if (OpportunityTemp.StageWithStrategy.Stage != null)
-                                {
-                                    EventModel.StageWithStrategy = OpportunityTemp.StageWithStrategy.Stage.ID.id.ToString();
-                                }
-                            }
-
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                appLogger.Error("Error While fetching Event other fields for inserting in database");
-                appLogger.Error(ex.Message);
-            }
-            return EventModel;
-        }
-
         public int GetLastIDNotifications()
         {
             int total = 0;
@@ -9649,7 +8699,7 @@ namespace DWHSync
             try
             {
                 conn = new MySql.Data.MySqlClient.MySqlConnection();
-                conn.ConnectionString = myAppConnectionString;
+                conn.ConnectionString = myConnectionString;
                 conn.Open();
 
                 string Query = "Select count(ID) as ID from notifications where ID > " + LastID;
@@ -9681,7 +8731,7 @@ namespace DWHSync
             try
             {
 
-                conn.ConnectionString = myAppConnectionString;
+                conn.ConnectionString = myConnectionString;
                 List<string> rows = new List<string>();
 
                 //someString.Trim(charsToTrim);
@@ -9723,28 +8773,6 @@ namespace DWHSync
             }
 
             return sCommand;
-        }
-
-        private void updateIncidentFields(string sqlQuery)
-        {
-            MySql.Data.MySqlClient.MySqlConnection conn;
-            try
-            {
-                conn = new MySql.Data.MySqlClient.MySqlConnection();
-                conn.ConnectionString = myConnectionString;
-                conn.Open();
-                MySqlCommand updateCommand = new MySqlCommand(sqlQuery, conn);
-                MySqlDataReader dataReader;
-                dataReader = updateCommand.ExecuteReader();     // Here our query will be executed and data saved into the database.
-
-                conn.Close();
-            }
-            catch (Exception ex)
-            {
-                appLogger.Error("Error in updating Incident in DB for OtherFields " + ex.Message);
-                appLogger.Error(ex.StackTrace);
-            }
-
         }
 
         public void insertLastUpdatedInDbLanding(string tbl_name, int count)
@@ -9791,37 +8819,6 @@ namespace DWHSync
 
 
                 Query = "INSERT INTO DWH.`LastUpdated`(`LastUpdated`,Table_Name,RecordSync) VALUES ('" + DateTime.Now + "','" + tbl_name + "'," + count + ")";
-
-
-                MySqlCommand insertCommand = new MySqlCommand(Query, conn);
-                MySqlDataReader dataReader;
-                dataReader = insertCommand.ExecuteReader();     // Here our query will be executed and data saved into the database.
-                recordId = insertCommand.LastInsertedId;
-                //appLogger.Info("Error in inserting LastUpdated Record in DB : " + recordId);
-                conn.Close();
-            }
-            catch (Exception e)
-            {
-                appLogger.Error("Error in inserting record in DB : " + e.Message);
-                appLogger.Error(e.StackTrace);
-
-            }
-
-        }
-
-        public void insertSyncRecordInDb(string tbl_name, int count)
-        {
-            MySql.Data.MySqlClient.MySqlConnection conn;
-            string Query = "";
-            long recordId = 0;
-            try
-            {
-                conn = new MySql.Data.MySqlClient.MySqlConnection();
-                conn.ConnectionString = myConnectionString;
-                conn.Open();
-
-
-                Query = "INSERT INTO DWH.`dwh_count_statistics`(Table_Name,RecordSync) VALUES ('" + tbl_name + "'," + count + ",)";
 
 
                 MySqlCommand insertCommand = new MySqlCommand(Query, conn);
@@ -9994,42 +8991,6 @@ namespace DWHSync
             /* DWH = getDWHTableCount("Need").ToString();
              RN = getRNTableCountByApi("SCBS_CHILD.Need;");
              InsertRNandDWHAllCount("", RN, DWH);*/
-        }
-
-        private static string fetchchilddata(GenericField fetchchildfields)
-        {
-            string value = "";
-            if (fetchchildfields.DataValue != null)
-            {
-                foreach (object field1 in fetchchildfields.DataValue.Items)
-                {
-
-                    if (fetchchildfields.dataType.ToString().Equals("NAMED_ID"))
-                    {
-                        GenericField testField = (GenericField)fetchchildfields;
-                        NamedID NamedIdVal = (NamedID)field1;
-                        value = "Null data";
-                        if (NamedIdVal.ID != null)
-                            value = NamedIdVal.ID.id.ToString();
-                    }
-                    else
-                    {
-                        DataValue sponserdata = fetchchildfields.DataValue;
-                        foreach (object spoerdvvalue in sponserdata.Items)
-                        {
-                            if (spoerdvvalue != null)
-                            {
-                                value = spoerdvvalue.ToString();
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                value = "Null data";
-            }
-            return value;
         }
 
         public string SendSMS(string message)
@@ -10308,6 +9269,115 @@ namespace DWHSync
                 appLogger.Error(e.InnerException);
             }
             return lookupIds.Distinct().ToList();
+        }
+
+        public int SyncWhiteMailMassMailing(string fromTime)
+        {
+            int pageSize = 2000;
+            int count = 0;
+            long startLimit = 0;
+            int Total = 0;
+
+            try
+            {
+                ClientInfoHeader clientInfoHeader = new ClientInfoHeader();
+                APIAccessResponseHeaderType head = new APIAccessResponseHeaderType();
+                clientInfoHeader.AppID = "Get White data for DWH Sync";
+
+                do
+                {
+                    count = 0;
+
+                    string Query = "select Whitemail.MassMailing.ID, Whitemail.MassMailing.Name, Whitemail.MassMailing.DataPullDate, Whitemail.MassMailing.LandingDate from Whitemail.MassMailing";
+
+                    string updatedRecordsFilter = " where Whitemail.MassMailing.CreatedTime >= '" + fromTime + "' OR Whitemail.MassMailing.UpdatedTime >= '" + fromTime + "'";
+                    string orderBy = " ORDER BY Whitemail.MassMailing.ID ASC";
+                    string limit = " LIMIT " + startLimit + ", " + pageSize;
+
+                    //Query += updatedRecordsFilter + orderBy + limit;
+                    Query += orderBy + limit;
+
+                    byte[] byteArray;
+
+                    CSVTableSet results = null;
+                    head = rightNowSyncPortClient.QueryCSV(clientInfoHeader, api, Query, pageSize, "^", false, true, out results, out byteArray);
+                    count = results.CSVTables[0].Rows.Length;
+
+                    if (count > 0)
+                    {
+                        appLogger.Info("Updating " + count + " WhitemailMassMailing ...");
+                        StringBuilder sCommand = new StringBuilder("INSERT INTO WhiteMailMassMailing ");
+                        using (MySqlConnection mConnection = new MySqlConnection(myConnectionString))
+                        {
+                            List<string> Columns = new List<string>();
+                            foreach (string data in results.CSVTables[0].Columns.Split('^'))
+                            {
+                                if (data == "ID")
+                                {
+                                    Columns.Add("Id");
+                                }
+                                else
+                                {
+                                    Columns.Add(data);
+                                }
+                            }
+                            sCommand.Append(string.Format(" ({0}) VALUES ", string.Join(",", Columns)));
+
+                            List<string> Rows = new List<string>();
+                            foreach (string row in results.CSVTables[0].Rows)
+                            {
+                                string FilterRow = row.Replace("'", "");
+                                List<string> values = FilterRow.Split('^').ToList();
+                                string ID = string.IsNullOrEmpty(values[0]) ? "null" : values[0];
+                                string Name = string.IsNullOrEmpty(values[1]) ? "null" : values[1];
+                                string DataPullDate = string.IsNullOrEmpty(values[2]) ? "null" : values[2];
+                                string LandingDate = string.IsNullOrEmpty(values[3]) ? "null" : values[3];
+
+                                string singleRow = ID + ",'" + Name + "','" + DataPullDate + "','" + LandingDate + "'";
+                                Rows.Add(string.Format("({0})", singleRow));
+
+                            }
+                            sCommand.Append(string.Join(",", Rows));
+
+                            sCommand.Append(" ON DUPLICATE KEY UPDATE ");
+                            List<string> UpdatePart = new List<string>();
+                            foreach (string Column in Columns)
+                            {
+                                UpdatePart.Add(string.Format("{0} = VALUES({0})", Column));
+                            }
+                            sCommand.Append(string.Join(",", UpdatePart));
+                            sCommand.Replace("'null'", "null");
+                            sCommand.Append(";");
+
+                            mConnection.Open();
+                            using (MySqlCommand myCmd = new MySqlCommand(sCommand.ToString(), mConnection))
+                            {
+                                myCmd.CommandType = CommandType.Text;
+                                myCmd.ExecuteNonQuery();
+                            }
+                            appLogger.Info(count + " WhitemailMassMailing records updated successfully");
+                        }
+
+                        // For next set of data
+                        Total += count;
+                        startLimit += pageSize;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                } while (true);
+            }
+            catch (Exception e)
+            {
+                appLogger.Error("Error in WhitemailMassMailing - FromTime : " + fromTime + ", StartLimit : " + startLimit);
+                SendSMS("Error in WhitemailMassMailing for dwh_landing");
+                appLogger.Error(e.Message);
+                appLogger.Error(e.InnerException);
+                appLogger.Error(e.StackTrace);
+            }
+            return Total;
         }
 
     }
